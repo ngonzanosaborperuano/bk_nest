@@ -12,5 +12,9 @@ src
   — common.module.ts
   — common.service.ts
 
+--prod
 npm run build
 npm run start
+
+--dev
+npm run start:dev
