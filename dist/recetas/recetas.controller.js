@@ -11,6 +11,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
+var _a, _b;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.RecetasController = void 0;
 const common_1 = require("@nestjs/common");
@@ -42,7 +43,7 @@ __decorate([
     (0, common_1.Post)(),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [create_receta_dto_1.CreateRecetaDto]),
+    __metadata("design:paramtypes", [typeof (_a = typeof create_receta_dto_1.CreateRecetaDto !== "undefined" && create_receta_dto_1.CreateRecetaDto) === "function" ? _a : Object]),
     __metadata("design:returntype", void 0)
 ], RecetasController.prototype, "create", null);
 __decorate([
@@ -63,7 +64,7 @@ __decorate([
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, update_receta_dto_1.UpdateRecetaDto]),
+    __metadata("design:paramtypes", [String, typeof (_b = typeof update_receta_dto_1.UpdateRecetaDto !== "undefined" && update_receta_dto_1.UpdateRecetaDto) === "function" ? _b : Object]),
     __metadata("design:returntype", void 0)
 ], RecetasController.prototype, "update", null);
 __decorate([

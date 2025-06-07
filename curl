@@ -1,0 +1,11 @@
+-- Obtener información de la receta
+curl --request GET \
+--url 'https://spoonacular-recipe-food-nutrition-v1.p.rapidapi.com/recipes/479101/information?includeNutrition=true' \
+--header 'x-rapidapi-host: spoonacular-recipe-food-nutrition-v1.p.rapidapi.com' \
+--header 'x-rapidapi-key: 2e1c1d3de7mshdfdb7945d02656cp1bd0ffjsn18a187092cc1'
+
+-- obtener recetas aleatorias
+curl --request GET \
+--url 'https://spoonacular-recipe-food-nutrition-v1.p.rapidapi.com/recipes/random?tags=vegetarian%2Cdessert&number=1' \
+--header 'x-rapidapi-host: spoonacular-recipe-food-nutrition-v1.p.rapidapi.com' \
+--header 'x-rapidapi-key: 2e1c1d3de7mshdfdb7945d02656cp1bd0ffjsn18a187092cc1'
