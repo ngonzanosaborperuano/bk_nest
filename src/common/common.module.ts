@@ -1,22 +1,26 @@
-import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { CommonService } from './common.service';
-import { typeOrmConfig } from './config/typeorm.config';
+// src/common/common.module.ts
+import { HttpModule } from "@nestjs/axios";
+import { CacheModule } from "@nestjs/cache-manager";
+import { Module } from "@nestjs/common";
+import { APP_FILTER } from "@nestjs/core";
+import { SentryGlobalFilter, SentryModule } from "@sentry/nestjs/setup";
+import { CommonController } from "./common.controller";
+import { CommonService } from "./common.service";
 
 @Module({
   imports: [
-    ConfigModule.forRoot({
-      isGlobal: true,
-      envFilePath: '.env',
-    }),
-    TypeOrmModule.forRootAsync({
-      inject: [ConfigModule],
-      useFactory: (configService: any) => typeOrmConfig(configService),
-      imports: [ConfigModule],
-    }),
+    HttpModule,
+    SentryModule.forRoot(),
+    CacheModule.register(), // si no es global
   ],
-  providers: [CommonService],
+  controllers: [CommonController],
+  providers: [
+    CommonService,
+    {
+      provide: APP_FILTER,
+      useClass: SentryGlobalFilter,
+    },
+  ],
   exports: [CommonService],
 })
 export class CommonModule {}

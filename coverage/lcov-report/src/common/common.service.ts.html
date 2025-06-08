@@ -136,80 +136,75 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-yes">6x</span>
-<span class="cline-any cline-yes">6x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">6x</span>
-<span class="cline-any cline-yes">6x</span>
-<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-yes">9x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-yes">9x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">5x</span>
-<span class="cline-any cline-yes">5x</span>
-<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-yes">8x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">4x</span>
-<span class="cline-any cline-yes">4x</span>
-<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">7x</span>
+<span class="cline-any cline-yes">7x</span>
+<span class="cline-any cline-yes">7x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">4x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">7x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { HttpService } from '@nestjs/axios';
-import { CACHE_MANAGER } from '@nestjs/cache-manager';
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { HttpService } from "@nestjs/axios";
+import { CACHE_MANAGER } from "@nestjs/cache-manager";
 import {
   Inject,
   Injectable,
   InternalServerErrorException,
   Logger,
-} from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import { Cache } from 'cache-manager';
-import { firstValueFrom } from 'rxjs';
+} from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
+import { Cache } from "cache-manager";
+import { firstValueFrom } from "rxjs";
 &nbsp;
 @Injectable()
 export class CommonService {
   private readonly logger = new Logger(CommonService.name);
-  private readonly baseUrl = 'https://api.spoonacular.com/recipes';
+  private readonly baseUrl =
+    "https://spoonacular-recipe-food-nutrition-v1.p.rapidapi.com/recipes";
 &nbsp;
   constructor(
     private readonly httpService: HttpService,
     private readonly configService: ConfigService,
-    @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
+    @Inject(CACHE_MANAGER) private readonly cacheManager: Cache
   ) {}
 &nbsp;
-  /**
-   * Fetch random recipes from Spoonacular API with optional caching
-   * @param tag The tag/category (e.g. 'dessert')
-   * @param number Number of recipes
-   * @returns Recipe data
-   */
   async getRandomRecipe(tag: string, number: number = <span class="branch-0 cbranch-no" title="branch not covered" >1)</span>: Promise&lt;any&gt; {
     const cacheKey = `random_recipe:${tag}:${number}`;
     const cached = await this.cacheManager.get(cacheKey);
@@ -219,24 +214,29 @@ export class CommonService {
     }
 &nbsp;
     try {
-      const apiKey = this.configService.get&lt;string&gt;('SPOONACULAR_API_KEY');
+      const apiKey = this.configService.get&lt;string&gt;("RAPIDAPI_KEY");
       const url = `${this.baseUrl}/random`;
 &nbsp;
       const { data } = await firstValueFrom(
         this.httpService.get(url, {
+          headers: {
+            "x-rapidapi-host":
+              "spoonacular-recipe-food-nutrition-v1.p.rapidapi.com",
+            "x-rapidapi-key": apiKey,
+          },
           params: {
             number,
             tags: tag,
             apiKey,
           },
-        }),
+        })
       );
 &nbsp;
       await this.cacheManager.set(cacheKey, data, 60 * 5); // cache por 5 minutos
       return data;
     } catch (error) {
-      this.logger.error('Error fetching recipe', error);
-      throw new InternalServerErrorException('Failed to fetch recipe');
+      this.logger.error("Error fetching recipe", error);
+      throw new InternalServerErrorException("Failed to fetch recipe");
     }
   }
 }
@@ -247,7 +247,7 @@ export class CommonService {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-06-07T16:32:42.680Z
+                at 2025-06-07T17:02:09.206Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

@@ -7,28 +7,33 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.CommonModule = void 0;
+// src/common/common.module.ts
+const axios_1 = require("@nestjs/axios");
+const cache_manager_1 = require("@nestjs/cache-manager");
 const common_1 = require("@nestjs/common");
-const config_1 = require("@nestjs/config");
-const typeorm_1 = require("@nestjs/typeorm");
+const core_1 = require("@nestjs/core");
+const setup_1 = require("@sentry/nestjs/setup");
+const common_controller_1 = require("./common.controller");
 const common_service_1 = require("./common.service");
-const typeorm_config_1 = require("./config/typeorm.config");
 let CommonModule = class CommonModule {
 };
 exports.CommonModule = CommonModule;
 exports.CommonModule = CommonModule = __decorate([
     (0, common_1.Module)({
         imports: [
-            config_1.ConfigModule.forRoot({
-                isGlobal: true,
-                envFilePath: '.env',
-            }),
-            typeorm_1.TypeOrmModule.forRootAsync({
-                inject: [config_1.ConfigModule],
-                useFactory: (configService) => (0, typeorm_config_1.typeOrmConfig)(configService),
-                imports: [config_1.ConfigModule],
-            }),
+            axios_1.HttpModule,
+            setup_1.SentryModule.forRoot(),
+            cache_manager_1.CacheModule.register(), // si no es global
         ],
-        providers: [common_service_1.CommonService],
+        controllers: [common_controller_1.CommonController],
+        providers: [
+            common_service_1.CommonService,
+            {
+                provide: core_1.APP_FILTER,
+                useClass: setup_1.SentryGlobalFilter,
+            },
+        ],
         exports: [common_service_1.CommonService],
     })
 ], CommonModule);
+//# sourceMappingURL=common.module.js.map

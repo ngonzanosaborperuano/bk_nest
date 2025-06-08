@@ -1,76 +1,6 @@
-// import { HttpModule, HttpService } from '@nestjs/axios';
-// import { CacheModule } from '@nestjs/cache-manager';
-// import { ConfigModule } from '@nestjs/config';
-// import { Test, TestingModule } from '@nestjs/testing';
-// import { AxiosResponse } from 'axios';
-// import { of } from 'rxjs';
-// import { CommonService } from './common.service';
-
-/**
-En resumen
-Tipo: Pruebas Unitarias
-
-Qué prueban: El servicio CommonService, su creación y el método getRandomRecipe 
-que consume una API externa (aunque idealmente en pruebas unitarias se debe simular 
-o mockear la API externa).
-
-Objetivo: Verificar que el servicio funciona correctamente de forma aislada.
- */
-
-// describe('CommonService', () => {
-//   let service: CommonService;
-//   let httpService: HttpService;
-
-//   beforeEach(async () => {
-//     const module: TestingModule = await Test.createTestingModule({
-//       imports: [
-//         ConfigModule.forRoot({ isGlobal: true }),
-//         HttpModule,
-//         CacheModule.register(),
-//       ],
-//       providers: [CommonService],
-//     }).compile();
-
-//     service = module.get<CommonService>(CommonService);
-//     httpService = module.get<HttpService>(HttpService);
-//   });
-
-//   it('should be defined', () => {
-//     expect(service).toBeDefined();
-//   });
-
-//   it('should fetch random recipes successfully', async () => {
-//     const mockedResponse: AxiosResponse = {
-//       data: {
-//         recipes: [
-//           {
-//             id: 1,
-//             title: 'Mocked Dessert',
-//             image: 'https://example.com/mock.jpg',
-//             instructions: 'Mix and enjoy.',
-//           },
-//         ],
-//       },
-//       status: 200,
-//       statusText: 'OK',
-//       headers: {},
-//       config: { headers: new (require('axios').AxiosHeaders)() },
-//     };
-
-//     jest.spyOn(httpService, 'get').mockReturnValueOnce(of(mockedResponse));
-
-//     const result = await service.getRandomRecipe('dessert', 1);
-
-//     expect(result).toBeDefined();
-//     expect(result.recipes).toBeInstanceOf(Array);
-//     expect(result.recipes.length).toBeGreaterThan(0);
-//     expect(result.recipes[0].title).toEqual('Mocked Dessert');
-//   });
-// });
-
 import { HttpService } from "@nestjs/axios";
 import { CACHE_MANAGER } from "@nestjs/cache-manager";
-import { Logger } from "@nestjs/common";
+import { InternalServerErrorException, Logger } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { Test, TestingModule } from "@nestjs/testing";
 import { of, throwError } from "rxjs";
@@ -82,17 +12,6 @@ describe("CommonService", () => {
   let cacheManager: any;
   let configService: ConfigService;
 
-  /*
-Qué hace: 
-- Crea un módulo de prueba aislado con dependencias mockeadas (simuladas).
-
-- En lugar de hacer llamadas reales HTTP, al caché o al config real, se inyectan objetos 
-  simulados que permiten controlar su comportamiento.
-
-- Esto hace que las pruebas sean rápidas, confiables y sin efectos secundarios externos.
-*/
-
-  // 1. Setup inicial (beforeEach)
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -128,14 +47,12 @@ Qué hace:
     jest.spyOn(service["logger"], "log").mockImplementation(() => {});
     jest.spyOn(service["logger"], "error").mockImplementation(() => {});
   });
-  // 2. Prueba de existencia
-  // Verifica que el servicio se haya creado correctamente y esté definido.
+
   it("should be defined", () => {
     expect(service).toBeDefined();
   });
 
-  // 3. Prueba que usa datos del caché si existen
-  it("should return cached data if present", async () => {
+  it("should return cached data if present and log the event", async () => {
     const cachedData = { recipes: ["cached recipe"] };
     cacheManager.get.mockResolvedValue(cachedData);
 
@@ -149,7 +66,6 @@ Qué hace:
     );
   });
 
-  // 4. Prueba que llama a la API y guarda en caché si no hay datos previos
   it("should fetch data from API and cache it if no cached data", async () => {
     cacheManager.get.mockResolvedValue(null);
 
@@ -164,7 +80,7 @@ Qué hace:
 
     expect(configService.get).toHaveBeenCalledWith("SPOONACULAR_API_KEY");
     expect(httpService.get).toHaveBeenCalledWith(
-      "https://api.spoonacular.com/recipes/random",
+      "https://spoonacular-recipe-food-nutrition-v1.p.rapidapi.com/recipes/random",
       {
         params: {
           number: 1,
@@ -183,8 +99,7 @@ Qué hace:
     expect(result).toEqual(mockApiResponse.data);
   });
 
-  // 5. Prueba que lanza excepción si la llamada HTTP falla
-  it("should throw InternalServerErrorException on HTTP error", async () => {
+  it("should throw InternalServerErrorException on HTTP error and log the error", async () => {
     cacheManager.get.mockResolvedValue(null);
 
     (httpService.get as jest.Mock).mockReturnValue(
@@ -192,8 +107,108 @@ Qué hace:
     );
 
     await expect(service.getRandomRecipe("dessert", 1)).rejects.toThrow(
-      "Failed to fetch recipe"
+      InternalServerErrorException
     );
-    expect(service["logger"].error).toHaveBeenCalled();
+    expect(service["logger"].error).toHaveBeenCalledWith(
+      "Error fetching recipe",
+      expect.any(Error)
+    );
+  });
+
+  // Nuevo: probar con diferentes valores de tag y number
+  it("should handle different tags and numbers properly", async () => {
+    cacheManager.get.mockResolvedValue(null);
+
+    const mockApiResponse = {
+      data: { recipes: ["api recipe with different tag and number"] },
+    };
+
+    (httpService.get as jest.Mock).mockReturnValue(of(mockApiResponse));
+    cacheManager.set.mockResolvedValue(undefined);
+
+    const tag = "vegan";
+    const number = 3;
+    const cacheKey = `random_recipe:${tag}:${number}`;
+
+    const result = await service.getRandomRecipe(tag, number);
+
+    expect(cacheManager.get).toHaveBeenCalledWith(cacheKey);
+    expect(httpService.get).toHaveBeenCalledWith(
+      "https://spoonacular-recipe-food-nutrition-v1.p.rapidapi.com/recipes/random",
+      {
+        params: {
+          number,
+          tags: tag,
+          apiKey: "fake-api-key",
+        },
+      }
+    );
+    expect(cacheManager.set).toHaveBeenCalledWith(
+      cacheKey,
+      mockApiResponse.data,
+      60 * 5
+    );
+    expect(result).toEqual(mockApiResponse.data);
+  });
+
+  // Nuevo: probar comportamiento con parámetros inválidos (vacíos o negativos)
+  // Nota: El servicio no valida explícitamente, pero se puede probar que sigue llamando la API o retorna error si hay alguno.
+  it("should handle empty tag by still calling API", async () => {
+    cacheManager.get.mockResolvedValue(null);
+
+    const mockApiResponse = {
+      data: { recipes: ["api recipe with empty tag"] },
+    };
+
+    (httpService.get as jest.Mock).mockReturnValue(of(mockApiResponse));
+    cacheManager.set.mockResolvedValue(undefined);
+
+    const tag = "";
+    const number = 1;
+    const result = await service.getRandomRecipe(tag, number);
+
+    expect(cacheManager.get).toHaveBeenCalledWith(`random_recipe::1`);
+    expect(httpService.get).toHaveBeenCalledWith(
+      "https://spoonacular-recipe-food-nutrition-v1.p.rapidapi.com/recipes/random",
+      {
+        params: {
+          number,
+          tags: tag,
+          apiKey: "fake-api-key",
+        },
+      }
+    );
+    expect(result).toEqual(mockApiResponse.data);
+  });
+
+  it("should handle zero or negative number by calling API with that value", async () => {
+    cacheManager.get.mockResolvedValue(null);
+
+    const mockApiResponse = {
+      data: { recipes: ["api recipe with zero or negative number"] },
+    };
+
+    (httpService.get as jest.Mock).mockReturnValue(of(mockApiResponse));
+    cacheManager.set.mockResolvedValue(undefined);
+
+    for (const number of [0, -5]) {
+      const tag = "dessert";
+      const cacheKey = `random_recipe:${tag}:${number}`;
+      cacheManager.get.mockResolvedValue(null); // reset cache for each call
+      const result = await service.getRandomRecipe(tag, number);
+
+      expect(cacheManager.get).toHaveBeenCalledWith(cacheKey);
+      expect(httpService.get).toHaveBeenCalledWith(
+        "https://spoonacular-recipe-food-nutrition-v1.p.rapidapi.com/recipes/random",
+        {
+          params: {
+            number,
+            tags: tag,
+            apiKey: "fake-api-key",
+          },
+        }
+      );
+      expect(result).toEqual(mockApiResponse.data);
+    }
   });
 });

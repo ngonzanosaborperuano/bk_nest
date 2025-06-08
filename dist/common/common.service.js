@@ -25,14 +25,12 @@ let CommonService = CommonService_1 = class CommonService {
         this.configService = configService;
         this.cacheManager = cacheManager;
         this.logger = new common_1.Logger(CommonService_1.name);
-        this.baseUrl = 'https://api.spoonacular.com/recipes';
+        this.baseUrl = this.configService.get("BASE_URL");
+        this.headers = {
+            "x-rapidapi-host": this.configService.get("HEADER_SPOONACULAR"),
+            "x-rapidapi-key": this.configService.get("RAPIDAPI_KEY"),
+        };
     }
-    /**
-     * Fetch random recipes from Spoonacular API with optional caching
-     * @param tag The tag/category (e.g. 'dessert')
-     * @param number Number of recipes
-     * @returns Recipe data
-     */
     async getRandomRecipe(tag, number = 1) {
         const cacheKey = `random_recipe:${tag}:${number}`;
         const cached = await this.cacheManager.get(cacheKey);
@@ -41,21 +39,20 @@ let CommonService = CommonService_1 = class CommonService {
             return cached;
         }
         try {
-            const apiKey = this.configService.get('SPOONACULAR_API_KEY');
             const url = `${this.baseUrl}/random`;
             const { data } = await (0, rxjs_1.firstValueFrom)(this.httpService.get(url, {
+                headers: this.headers,
                 params: {
                     number,
                     tags: tag,
-                    apiKey,
                 },
             }));
             await this.cacheManager.set(cacheKey, data, 60 * 5); // cache por 5 minutos
             return data;
         }
         catch (error) {
-            this.logger.error('Error fetching recipe', error);
-            throw new common_1.InternalServerErrorException('Failed to fetch recipe');
+            this.logger.error("Error fetching recipe", error);
+            throw new common_1.InternalServerErrorException("Failed to fetch recipe");
         }
     }
 };
@@ -66,3 +63,4 @@ exports.CommonService = CommonService = CommonService_1 = __decorate([
     __metadata("design:paramtypes", [axios_1.HttpService,
         config_1.ConfigService, Object])
 ], CommonService);
+//# sourceMappingURL=common.service.js.map

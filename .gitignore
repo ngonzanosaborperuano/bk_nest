@@ -3,3 +3,4 @@ cd/
 dist
 tmp/*
 !tmp/.gitkeep
+sentry.properties
