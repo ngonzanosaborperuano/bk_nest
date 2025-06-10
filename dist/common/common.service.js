@@ -8,38 +8,26 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-var __param = (this && this.__param) || function (paramIndex, decorator) {
-    return function (target, key) { decorator(target, key, paramIndex); }
-};
-var CommonService_1;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.CommonService = void 0;
 const axios_1 = require("@nestjs/axios");
-const cache_manager_1 = require("@nestjs/cache-manager");
 const common_1 = require("@nestjs/common");
 const config_1 = require("@nestjs/config");
 const rxjs_1 = require("rxjs");
-let CommonService = CommonService_1 = class CommonService {
-    constructor(httpService, configService, cacheManager) {
+const config_keys_1 = require("./config/config-keys");
+let CommonService = class CommonService {
+    constructor(httpService, configService) {
         this.httpService = httpService;
         this.configService = configService;
-        this.cacheManager = cacheManager;
-        this.logger = new common_1.Logger(CommonService_1.name);
-        this.baseUrl = this.configService.get("BASE_URL");
+        this.baseUrl = this.configService.get(config_keys_1.CONFIG_KEYS.API_EXTERNA.URL);
         this.headers = {
-            "x-rapidapi-host": this.configService.get("HEADER_SPOONACULAR"),
-            "x-rapidapi-key": this.configService.get("RAPIDAPI_KEY"),
+            "x-rapidapi-host": this.configService.get(config_keys_1.CONFIG_KEYS.API_EXTERNA.HEADER),
+            "x-rapidapi-key": this.configService.get(config_keys_1.CONFIG_KEYS.API_EXTERNA.KEY),
         };
     }
     async getRandomRecipe(tag, number = 1) {
-        const cacheKey = `random_recipe:${tag}:${number}`;
-        const cached = await this.cacheManager.get(cacheKey);
-        if (cached) {
-            this.logger.log(`Returning cached recipe for: ${tag}`);
-            return cached;
-        }
+        const url = `${this.baseUrl}/random`;
         try {
-            const url = `${this.baseUrl}/random`;
             const { data } = await (0, rxjs_1.firstValueFrom)(this.httpService.get(url, {
                 headers: this.headers,
                 params: {
@@ -47,20 +35,17 @@ let CommonService = CommonService_1 = class CommonService {
                     tags: tag,
                 },
             }));
-            await this.cacheManager.set(cacheKey, data, 60 * 5); // cache por 5 minutos
             return data;
         }
         catch (error) {
-            this.logger.error("Error fetching recipe", error);
             throw new common_1.InternalServerErrorException("Failed to fetch recipe");
         }
     }
 };
 exports.CommonService = CommonService;
-exports.CommonService = CommonService = CommonService_1 = __decorate([
+exports.CommonService = CommonService = __decorate([
     (0, common_1.Injectable)(),
-    __param(2, (0, common_1.Inject)(cache_manager_1.CACHE_MANAGER)),
     __metadata("design:paramtypes", [axios_1.HttpService,
-        config_1.ConfigService, Object])
+        config_1.ConfigService])
 ], CommonService);
 //# sourceMappingURL=common.service.js.map

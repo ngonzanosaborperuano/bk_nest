@@ -1,19 +1,19 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.typeOrmConfig = void 0;
-const typeOrmConfig = (configService) => {
-    const env = configService.get("NODE_ENV");
-    console.log("NODE_ENV:", env); // o usar Logger
+exports.typeOrmPostgres = void 0;
+const config_keys_1 = require("./config-keys");
+const typeOrmPostgres = (configService) => {
+    const env = configService.get(config_keys_1.CONFIG_KEYS.APP.NODE_ENV);
     return {
         type: "postgres",
-        host: configService.get("DB_HOST"),
-        port: configService.get("DB_PORT") ?? 5433,
-        username: configService.get("DB_USER"),
-        password: configService.get("DB_PASS"),
-        database: configService.get("DB_NAME"),
+        host: configService.get(config_keys_1.CONFIG_KEYS.DB.HOST),
+        port: configService.get(config_keys_1.CONFIG_KEYS.DB.PORT) ?? 5433,
+        username: configService.get(config_keys_1.CONFIG_KEYS.DB.USER),
+        password: configService.get(config_keys_1.CONFIG_KEYS.DB.PASS),
+        database: configService.get(config_keys_1.CONFIG_KEYS.DB.NAME),
         synchronize: env !== "production",
         autoLoadEntities: true,
     };
 };
-exports.typeOrmConfig = typeOrmConfig;
+exports.typeOrmPostgres = typeOrmPostgres;
 //# sourceMappingURL=typeorm.config.js.map

@@ -10,14 +10,18 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AppModule = void 0;
-const cache_manager_1 = require("@nestjs/cache-manager");
-const common_1 = require("@nestjs/common");
-const config_1 = require("@nestjs/config");
-const typeorm_1 = require("@nestjs/typeorm");
-const joi_1 = __importDefault(require("joi"));
-const common_module_1 = require("./common/common.module");
+const common_1 = require("@nestjs/common"); //Decorador que marca esta clase como un módulo NestJS
+const config_1 = require("@nestjs/config"); //enviroment
+const typeorm_1 = require("@nestjs/typeorm"); //ORM para manejar base de datos
+const joi_1 = __importDefault(require("joi")); //Librería para validar la forma y contenido de las variables de entorno
+const api_externa_config_1 = __importDefault(require("./common/config/api-externa.config"));
+const app_config_1 = __importDefault(require("./common/config/app.config"));
 const database_config_1 = __importDefault(require("./common/config/database.config"));
 const typeorm_config_1 = require("./common/config/typeorm.config");
+const recipe_module_1 = require("./recipes/recipe.module");
+// import { CustomCacheInterceptor } from "./common/interceptors/custom-cache.interceptor";
+const redis_module_1 = require("./redis/redis.module");
+const sentry_module_1 = require("./sentry/sentry.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -26,32 +30,62 @@ exports.AppModule = AppModule = __decorate([
         imports: [
             // Configuración global del .env y validación
             config_1.ConfigModule.forRoot({
+                // Hace que la configuración esté disponible en toda la
+                // aplicación sin volver a importar ConfigModule.
                 isGlobal: true,
-                envFilePath: ".env", // opcional, por defecto busca en la raíz
-                load: [database_config_1.default],
+                // opcional, por defecto busca en la raíz
+                envFilePath: ".env",
+                // Carga una función que devuelve un objeto de configuración personalizado
+                // (e.g. para organizar las variables).
+                load: [database_config_1.default, api_externa_config_1.default, app_config_1.default],
+                // Usa Joi para validar que las variables de entorno existan y tengan el
+                // formato correcto antes de arrancar la app.
                 validationSchema: joi_1.default.object({
-                    // RAPIDAPI_KEY: Joi.string().required(),
+                    RAPIDAPI_KEY: joi_1.default.string().required(),
                     DB_HOST: joi_1.default.string().required(),
                     DB_PORT: joi_1.default.number().default(5433),
+                    DB_NAME: joi_1.default.string().required(),
                     DB_USER: joi_1.default.string().required(),
                     DB_PASS: joi_1.default.string().required(),
-                    DB_NAME: joi_1.default.string().required(),
+                    NODE_ENV: joi_1.default.string()
+                        .valid("development", "production", "test", "provision")
+                        .default("development"),
+                    RAPIDAPI_BASE_URL: joi_1.default.string().required(),
+                    HEADER_SPOONACULAR: joi_1.default.string().required(),
+                    PORT: joi_1.default.number().default(3000),
+                    SENTRY_DSN: joi_1.default.string().required(),
+                    REDIS_HOST: joi_1.default.string().default("localhost"),
+                    REDIS_PORT: joi_1.default.number().default(6379),
+                    REDIS_PASSWORD: joi_1.default.string().allow("", null),
                 }),
             }),
-            // Conexión a la base de datos
+            // Carga la configuración de TypeORM de forma asincrónica usando una función.
             typeorm_1.TypeOrmModule.forRootAsync({
+                // Asegura que ConfigService esté disponible.
                 imports: [config_1.ConfigModule],
+                // Indica que se inyectará ConfigService como dependencia.
                 inject: [config_1.ConfigService],
-                useFactory: typeorm_config_1.typeOrmConfig,
+                // Es una función que recibe ConfigService y devuelve la configuración
+                // de TypeORM (host, user, etc.).
+                useFactory: typeorm_config_1.typeOrmPostgres,
             }),
-            // Cache global
-            cache_manager_1.CacheModule.register({
-                isGlobal: true,
-                ttl: 300,
-            }),
+            // Activa un sistema de Cache global en la aplicacion
+            // CacheModule.register({
+            //   isGlobal: true,
+            // }),
             // Módulo común
-            common_module_1.CommonModule,
+            // Este módulo contiene servicios reutilizables (pipes, DTOs comunes, validadores,
+            // utilidades, etc.) que serán accesibles en toda la aplicación.
+            recipe_module_1.CommonModule,
+            sentry_module_1.SentryModule,
+            redis_module_1.RedisModule,
         ],
+        // providers: [
+        //   {
+        //     provide: APP_INTERCEPTOR,
+        //     useClass: CustomCacheInterceptor,
+        //   },
+        // ],
     })
 ], AppModule);
 //# sourceMappingURL=app.module.js.map

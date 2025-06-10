@@ -35,3 +35,16 @@ npm run test:watch
 open coverage/lcov-report/index.html
 
 =====================================================================
+REDIS
+--habilitar redis para guardar cache
+redis-server
+
+--entrar en redis
+redis-cli
+
+--ver keys
+keys \*
+
+====================
+ssh
+ssh -i ~/.ssh/gcp_key -L 5433:10.128.0.2:5432 niltongonzano@34.69.157.202

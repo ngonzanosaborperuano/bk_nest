@@ -9,7 +9,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.CommonModule = void 0;
 // src/common/common.module.ts
 const axios_1 = require("@nestjs/axios");
-const cache_manager_1 = require("@nestjs/cache-manager");
 const common_1 = require("@nestjs/common");
 const core_1 = require("@nestjs/core");
 const setup_1 = require("@sentry/nestjs/setup");
@@ -20,11 +19,7 @@ let CommonModule = class CommonModule {
 exports.CommonModule = CommonModule;
 exports.CommonModule = CommonModule = __decorate([
     (0, common_1.Module)({
-        imports: [
-            axios_1.HttpModule,
-            setup_1.SentryModule.forRoot(),
-            cache_manager_1.CacheModule.register(), // si no es global
-        ],
+        imports: [axios_1.HttpModule], //, SentryModule.forRoot()
         controllers: [common_controller_1.CommonController],
         providers: [
             common_service_1.CommonService,
