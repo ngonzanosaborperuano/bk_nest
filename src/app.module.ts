@@ -11,6 +11,8 @@ import { typeOrmPostgres } from "./common/config/typeorm.config";
 import { RedisModule } from "./common/cache/redis.module";
 import { SentryModule } from "./common/monitoring/sentry.module";
 import { RecipeModule } from "./recipes/recipe.module";
+import { AuthModule } from './auth/auth.module';
+import { UsersModule } from './users/users.module';
 @Module({
   imports: [
     // Configuración global del .env y validación
@@ -62,6 +64,8 @@ import { RecipeModule } from "./recipes/recipe.module";
     RecipeModule,
     SentryModule,
     RedisModule,
+    AuthModule,
+    UsersModule,
   ],
 })
 export class AppModule {}
