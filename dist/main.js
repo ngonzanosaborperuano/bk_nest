@@ -6,8 +6,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const common_1 = require("@nestjs/common");
 const core_1 = require("@nestjs/core");
 const swagger_1 = require("@nestjs/swagger");
-const cors_1 = __importDefault(require("cors"));
-const express_rate_limit_1 = __importDefault(require("express-rate-limit"));
 const helmet_1 = __importDefault(require("helmet"));
 const app_module_1 = require("./app.module");
 const http_exception_filter_1 = require("./common/filters/http-exception.filter");
@@ -19,8 +17,12 @@ async function bootstrap() {
     app.useGlobalFilters(new http_exception_filter_1.AllExceptionsFilter());
     app.useGlobalInterceptors(new logging_interceptor_1.LoggingInterceptor());
     app.use((0, helmet_1.default)());
-    app.use((0, cors_1.default)()); //dominio
-    app.use((0, express_rate_limit_1.default)({ windowMs: 15 * 60 * 1000, max: 100 }));
+    app.enableCors({
+    // origin: "https://tu-dominio-frontend.com",
+    // methods: "GET,HEAD,PUT,PATCH,POST,DELETE", // Métodos HTTP permitidos
+    // allowedHeaders: "Content-Type, Accept, Authorization", // Cabeceras permitidas
+    // credentials: true, // Si necesitas enviar cookies o cabeceras de autorización
+    });
     //DOCUMENTACION
     const config = new swagger_1.DocumentBuilder()
         .setTitle("Spoonacular Recetas API")

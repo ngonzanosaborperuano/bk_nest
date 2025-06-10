@@ -8,28 +8,25 @@ import {
 import { Reflector } from "@nestjs/core";
 import { Observable, of } from "rxjs";
 import { tap } from "rxjs/operators";
-import { CACHE_REDIS_TTL_KEY } from "../decorators/cache-redis-ttl.decorator";
-import { RedisService } from "../redis.service";
+import { CacheService } from "../cache/cache.service";
+import { CACHE_TTL_KEY } from "../decorators/cache-ttl.decorator";
 
 @Injectable()
-export class CacheRedisInterceptor implements NestInterceptor {
-  private readonly logger = new Logger(CacheRedisInterceptor.name);
+export class CacheInterceptor implements NestInterceptor {
+  private readonly logger = new Logger(CacheInterceptor.name);
   constructor(
-    private readonly redisService: RedisService,
-    private readonly reflector: Reflector,
+    private readonly redisService: CacheService,
+    private readonly reflector: Reflector
   ) {}
 
   async intercept(
     context: ExecutionContext,
-    next: CallHandler,
+    next: CallHandler
   ): Promise<Observable<any>> {
     const request = context.switchToHttp().getRequest();
     const key = `${request.method}:${request.originalUrl}`;
 
-    const ttl = this.reflector.get<number>(
-      CACHE_REDIS_TTL_KEY,
-      context.getHandler(),
-    );
+    const ttl = this.reflector.get<number>(CACHE_TTL_KEY, context.getHandler());
 
     if (!ttl) {
       return next.handle(); // No TTL, no caching
@@ -45,7 +42,7 @@ export class CacheRedisInterceptor implements NestInterceptor {
       tap(async (response) => {
         this.logger.log(`[CACHE SET - Interceptor] ${key} (TTL: ${ttl}s)`);
         await this.redisService.set(key, response, ttl);
-      }),
+      })
     );
   }
 }

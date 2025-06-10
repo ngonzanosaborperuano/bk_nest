@@ -2,8 +2,6 @@ import { ValidationPipe } from "@nestjs/common";
 import { NestFactory } from "@nestjs/core";
 import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
 
-import cors from "cors";
-import rateLimit from "express-rate-limit";
 import helmet from "helmet";
 import { AppModule } from "./app.module";
 import { AllExceptionsFilter } from "./common/filters/http-exception.filter";
@@ -19,8 +17,13 @@ async function bootstrap() {
   app.useGlobalInterceptors(new LoggingInterceptor());
 
   app.use(helmet());
-  app.use(cors()); //dominio
-  app.use(rateLimit({ windowMs: 15 * 60 * 1000, max: 100 }));
+
+  app.enableCors({
+    // origin: "https://tu-dominio-frontend.com",
+    // methods: "GET,HEAD,PUT,PATCH,POST,DELETE", // Métodos HTTP permitidos
+    // allowedHeaders: "Content-Type, Accept, Authorization", // Cabeceras permitidas
+    // credentials: true, // Si necesitas enviar cookies o cabeceras de autorización
+  });
 
   //DOCUMENTACION
   const config = new DocumentBuilder()

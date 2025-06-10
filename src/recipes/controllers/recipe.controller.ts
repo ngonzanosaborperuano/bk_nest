@@ -1,17 +1,19 @@
 import { Controller, Get, Query, UseInterceptors } from "@nestjs/common";
 import { ApiOperation, ApiQuery, ApiResponse, ApiTags } from "@nestjs/swagger";
-import { CacheRedisTTL } from "../redis/decorators/cache-redis-ttl.decorator";
-import { CacheRedisInterceptor } from "../redis/interceptors/cache-redis.interceptor";
-import { CommonService } from "./common.service";
+
+import { CacheTTL } from "../../common/decorators/cache-ttl.decorator";
+
+import { CacheInterceptor } from "../../common/interceptors/cache.interceptor";
+import { RecipeService } from "../services/recipe.service";
 
 @ApiTags("Recetas")
 @Controller("recipes")
 export class CommonController {
-  constructor(private readonly commonService: CommonService) {}
+  constructor(private readonly commonService: RecipeService) {}
 
   @Get("random")
-  @UseInterceptors(CacheRedisInterceptor)
-  @CacheRedisTTL(300)
+  @UseInterceptors(CacheInterceptor)
+  @CacheTTL(300)
   @ApiOperation({ summary: "Obtenga recetas aleatorias por etiqueta" })
   @ApiQuery({ name: "etiqueta", required: true, example: "chicken" })
   @ApiQuery({ name: "number", required: false, example: 1 })
@@ -22,7 +24,7 @@ export class CommonController {
   @ApiResponse({ status: 500, description: "Internal server error" })
   async getRandomRecipes(
     @Query("etiqueta") tag: string,
-    @Query("number") number?: number,
+    @Query("number") number?: number
   ) {
     return this.commonService.getRandomRecipe(tag, number);
   }

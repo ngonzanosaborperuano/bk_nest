@@ -7,10 +7,10 @@ import apiExterna from "./common/config/api-externa.config";
 import app from "./common/config/app.config";
 import database from "./common/config/database.config";
 import { typeOrmPostgres } from "./common/config/typeorm.config";
-import { CommonModule } from "./recipes/recipe.module";
-// import { CustomCacheInterceptor } from "./common/interceptors/custom-cache.interceptor";
-import { RedisModule } from "./redis/redis.module";
-import { SentryModule } from "./sentry/sentry.module";
+
+import { CacheModule } from "./common/cache/cache.module";
+import { MonitoringModule } from "./common/monitoring/monitoring.module";
+import { RecipeModule } from "./recipes/recipe.module";
 @Module({
   imports: [
     // Configuración global del .env y validación
@@ -56,23 +56,12 @@ import { SentryModule } from "./sentry/sentry.module";
       useFactory: typeOrmPostgres,
     }),
 
-    // Activa un sistema de Cache global en la aplicacion
-    // CacheModule.register({
-    //   isGlobal: true,
-    // }),
-
     // Módulo común
     // Este módulo contiene servicios reutilizables (pipes, DTOs comunes, validadores,
     // utilidades, etc.) que serán accesibles en toda la aplicación.
-    CommonModule,
-    SentryModule,
-    RedisModule,
+    RecipeModule,
+    MonitoringModule,
+    CacheModule,
   ],
-  // providers: [
-  //   {
-  //     provide: APP_INTERCEPTOR,
-  //     useClass: CustomCacheInterceptor,
-  //   },
-  // ],
 })
 export class AppModule {}

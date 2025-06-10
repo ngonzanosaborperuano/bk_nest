@@ -3,19 +3,19 @@ import { HttpModule } from "@nestjs/axios";
 import { Module } from "@nestjs/common";
 import { APP_FILTER } from "@nestjs/core";
 import { SentryGlobalFilter } from "@sentry/nestjs/setup";
-import { CommonController } from "./common.controller";
-import { CommonService } from "./common.service";
+import { CommonController as RecipeController } from "./controllers/recipe.controller";
+import { RecipeService } from "./services/recipe.service";
 
 @Module({
-  imports: [HttpModule], //, SentryModule.forRoot()
-  controllers: [CommonController],
+  imports: [HttpModule],
+  controllers: [RecipeController],
   providers: [
-    CommonService,
+    RecipeService,
     {
       provide: APP_FILTER,
       useClass: SentryGlobalFilter,
     },
   ],
-  exports: [CommonService],
+  exports: [RecipeService],
 })
-export class CommonModule {}
+export class RecipeModule {}

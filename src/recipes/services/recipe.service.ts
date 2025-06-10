@@ -2,10 +2,10 @@ import { HttpService } from "@nestjs/axios";
 import { Injectable, InternalServerErrorException } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { firstValueFrom } from "rxjs";
-import { CONFIG_KEYS } from "../common/config/config-keys";
+import { CONFIG_KEYS } from "../../common/config/config-keys";
 
 @Injectable()
-export class CommonService {
+export class RecipeService {
   constructor(
     private readonly httpService: HttpService,
     private readonly configService: ConfigService

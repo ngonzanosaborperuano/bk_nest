@@ -18,10 +18,9 @@ const api_externa_config_1 = __importDefault(require("./common/config/api-extern
 const app_config_1 = __importDefault(require("./common/config/app.config"));
 const database_config_1 = __importDefault(require("./common/config/database.config"));
 const typeorm_config_1 = require("./common/config/typeorm.config");
+const cache_module_1 = require("./common/cache/cache.module");
+const monitoring_module_1 = require("./common/monitoring/monitoring.module");
 const recipe_module_1 = require("./recipes/recipe.module");
-// import { CustomCacheInterceptor } from "./common/interceptors/custom-cache.interceptor";
-const redis_module_1 = require("./redis/redis.module");
-const sentry_module_1 = require("./sentry/sentry.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -69,23 +68,13 @@ exports.AppModule = AppModule = __decorate([
                 // de TypeORM (host, user, etc.).
                 useFactory: typeorm_config_1.typeOrmPostgres,
             }),
-            // Activa un sistema de Cache global en la aplicacion
-            // CacheModule.register({
-            //   isGlobal: true,
-            // }),
             // Módulo común
             // Este módulo contiene servicios reutilizables (pipes, DTOs comunes, validadores,
             // utilidades, etc.) que serán accesibles en toda la aplicación.
-            recipe_module_1.CommonModule,
-            sentry_module_1.SentryModule,
-            redis_module_1.RedisModule,
+            recipe_module_1.RecipeModule,
+            monitoring_module_1.MonitoringModule,
+            cache_module_1.CacheModule,
         ],
-        // providers: [
-        //   {
-        //     provide: APP_INTERCEPTOR,
-        //     useClass: CustomCacheInterceptor,
-        //   },
-        // ],
     })
 ], AppModule);
 //# sourceMappingURL=app.module.js.map

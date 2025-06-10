@@ -3,11 +3,11 @@ import { InternalServerErrorException } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { Test, TestingModule } from "@nestjs/testing";
 import { of, throwError } from "rxjs";
-import { CONFIG_KEYS } from "../common/config/config-keys";
-import { CommonService } from "./common.service";
+import { CONFIG_KEYS } from "../../common/config/config-keys";
+import { RecipeService } from "./recipe.service";
 
 describe("CommonService", () => {
-  let service: CommonService;
+  let service: RecipeService;
   let httpService: HttpService;
 
   const mockHttpService = {
@@ -28,13 +28,13 @@ describe("CommonService", () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
-        CommonService,
+        RecipeService,
         { provide: HttpService, useValue: mockHttpService },
         { provide: ConfigService, useValue: mockConfigService },
       ],
     }).compile();
 
-    service = module.get<CommonService>(CommonService);
+    service = module.get<RecipeService>(RecipeService);
     httpService = module.get<HttpService>(HttpService);
   });
 
