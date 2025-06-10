@@ -1,12 +1,12 @@
 import { Global, Module } from "@nestjs/common";
-import { MonitoringService } from "./monitoring.service";
+import { SentryService } from "./sentry.service";
 
 @Global()
 @Module({
-  providers: [MonitoringService],
+  providers: [SentryService],
   exports: [],
 })
-export class MonitoringModule {}
+export class SentryModule {}
 
 /**
  

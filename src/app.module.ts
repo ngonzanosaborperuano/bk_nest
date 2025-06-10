@@ -8,8 +8,8 @@ import app from "./common/config/app.config";
 import database from "./common/config/database.config";
 import { typeOrmPostgres } from "./common/config/typeorm.config";
 
-import { CacheModule } from "./common/cache/cache.module";
-import { MonitoringModule } from "./common/monitoring/monitoring.module";
+import { RedisModule } from "./common/cache/redis.module";
+import { SentryModule } from "./common/monitoring/sentry.module";
 import { RecipeModule } from "./recipes/recipe.module";
 @Module({
   imports: [
@@ -60,8 +60,8 @@ import { RecipeModule } from "./recipes/recipe.module";
     // Este módulo contiene servicios reutilizables (pipes, DTOs comunes, validadores,
     // utilidades, etc.) que serán accesibles en toda la aplicación.
     RecipeModule,
-    MonitoringModule,
-    CacheModule,
+    SentryModule,
+    RedisModule,
   ],
 })
 export class AppModule {}

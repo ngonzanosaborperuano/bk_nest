@@ -4,7 +4,7 @@ import * as Sentry from "@sentry/node";
 import { CONFIG_KEYS } from "../config/config-keys";
 
 @Injectable()
-export class MonitoringService implements OnModuleInit {
+export class SentryService implements OnModuleInit {
   constructor(private readonly configService: ConfigService) {}
 
   onModuleInit() {

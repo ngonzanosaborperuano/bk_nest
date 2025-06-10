@@ -9,9 +9,9 @@ import Redis from "ioredis";
 import { CONFIG_KEYS } from "../config/config-keys";
 
 @Injectable()
-export class CacheService implements OnModuleInit, OnModuleDestroy {
+export class RedisService implements OnModuleInit, OnModuleDestroy {
   private client!: Redis;
-  private readonly logger = new Logger(CacheService.name);
+  private readonly logger = new Logger(RedisService.name);
 
   constructor(private readonly configService: ConfigService) {}
 

@@ -8,14 +8,14 @@ import {
 import { Reflector } from "@nestjs/core";
 import { Observable, of } from "rxjs";
 import { tap } from "rxjs/operators";
-import { CacheService } from "../cache/cache.service";
+import { RedisService } from "../cache/redis.service";
 import { CACHE_TTL_KEY } from "../decorators/cache-ttl.decorator";
 
 @Injectable()
 export class CacheInterceptor implements NestInterceptor {
   private readonly logger = new Logger(CacheInterceptor.name);
   constructor(
-    private readonly redisService: CacheService,
+    private readonly redisService: RedisService,
     private readonly reflector: Reflector
   ) {}
 
