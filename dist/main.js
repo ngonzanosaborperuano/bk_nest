@@ -8,28 +8,34 @@ const core_1 = require("@nestjs/core");
 const swagger_1 = require("@nestjs/swagger");
 const helmet_1 = __importDefault(require("helmet"));
 const app_module_1 = require("./app.module");
+const jwt_auth_guard_1 = require("./auth/guards/jwt-auth.guard");
 const http_exception_filter_1 = require("./common/filters/http-exception.filter");
 const logging_interceptor_1 = require("./common/interceptors/logging.interceptor");
 async function bootstrap() {
-    //crea la instancia de la aplicacion
     const app = await core_1.NestFactory.create(app_module_1.AppModule);
+    const reflector = app.get(core_1.Reflector);
+    // Seguridad y configuración general
+    app.use((0, helmet_1.default)());
+    app.enableCors(); // Personaliza si es necesario
     app.useGlobalPipes(new common_1.ValidationPipe({ whitelist: true, transform: true }));
     app.useGlobalFilters(new http_exception_filter_1.AllExceptionsFilter());
-    app.useGlobalInterceptors(new logging_interceptor_1.LoggingInterceptor());
-    app.use((0, helmet_1.default)());
-    app.enableCors({
-    // origin: "https://tu-dominio-frontend.com",
-    // methods: "GET,HEAD,PUT,PATCH,POST,DELETE", // Métodos HTTP permitidos
-    // allowedHeaders: "Content-Type, Accept, Authorization", // Cabeceras permitidas
-    // credentials: true, // Si necesitas enviar cookies o cabeceras de autorización
-    });
-    //DOCUMENTACION
-    const config = new swagger_1.DocumentBuilder()
+    app.useGlobalGuards(new jwt_auth_guard_1.JwtAuthGuard(reflector));
+    if (process.env.NODE_ENV !== "production") {
+        app.useGlobalInterceptors(new logging_interceptor_1.LoggingInterceptor());
+    }
+    // Swagger
+    const swaggerConfig = new swagger_1.DocumentBuilder()
         .setTitle("Spoonacular Recetas API")
         .setDescription("API para recetas aleatorias desde Spoonacular")
         .setVersion("1.0")
+        .addBearerAuth({
+        type: "http",
+        scheme: "bearer",
+        bearerFormat: "JWT",
+        in: "header",
+    })
         .build();
-    const document = swagger_1.SwaggerModule.createDocument(app, config);
+    const document = swagger_1.SwaggerModule.createDocument(app, swaggerConfig);
     swagger_1.SwaggerModule.setup("api", app, document);
     await app.listen(3000);
 }

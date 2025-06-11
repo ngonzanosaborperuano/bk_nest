@@ -11,7 +11,7 @@ const typeOrmPostgres = (configService) => {
         username: configService.get(config_keys_1.CONFIG_KEYS.DB.USER),
         password: configService.get(config_keys_1.CONFIG_KEYS.DB.PASS),
         database: configService.get(config_keys_1.CONFIG_KEYS.DB.NAME),
-        synchronize: env !== "production",
+        // synchronize: env !== "production",
         autoLoadEntities: true,
     };
 };

@@ -8,11 +8,12 @@ import app from "./common/config/app.config";
 import database from "./common/config/database.config";
 import { typeOrmPostgres } from "./common/config/typeorm.config";
 
+import { AuthModule } from "./auth/auth.module";
 import { RedisModule } from "./common/cache/redis.module";
 import { SentryModule } from "./common/monitoring/sentry.module";
-import { RecipeModule } from "./recipes/recipe.module";
-import { AuthModule } from './auth/auth.module';
-import { UsersModule } from './users/users.module';
+import { RecipeModule } from "./recipe/recipe.module";
+import { UsersModule } from "./user/user.module";
+
 @Module({
   imports: [
     // Configuración global del .env y validación
@@ -64,8 +65,8 @@ import { UsersModule } from './users/users.module';
     RecipeModule,
     SentryModule,
     RedisModule,
-    AuthModule,
     UsersModule,
+    AuthModule,
   ],
 })
 export class AppModule {}

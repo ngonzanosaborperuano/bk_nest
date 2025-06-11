@@ -1,4 +1,31 @@
-import { Controller } from '@nestjs/common';
+import { Body, Controller, Get, Logger, Post } from "@nestjs/common";
+import { ApiBearerAuth } from "@nestjs/swagger";
+import { CurrentUser } from "../common/decorators/current-user.decorator";
+import { Public } from "../common/decorators/public.decorator";
+import User from "../user/user.entity";
+import { AuthService } from "./auth.service";
+import { LoginDto } from "./dto/login.dto";
+import { SignUpDto } from "./dto/signup.dto";
 
-@Controller('auth')
-export class AuthController {}
+@Controller("auth")
+export class AuthController {
+  private readonly logger = new Logger(AuthController.name);
+  constructor(private authService: AuthService) {}
+  @Public()
+  @Post("/signup")
+  signUp(@Body() signUpDto: SignUpDto): Promise<{ token: string }> {
+    return this.authService.signUp(signUpDto);
+  }
+  @Public()
+  @Post("/login")
+  login(@Body() loginDto: LoginDto): Promise<{ token: string }> {
+    return this.authService.login(loginDto);
+  }
+
+  @ApiBearerAuth()
+  @Get("/me")
+  getProfile(@CurrentUser() user: User) {
+    this.logger.log(JSON.stringify(user));
+    return user;
+  }
+}

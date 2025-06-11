@@ -3,7 +3,7 @@ import { TypeOrmModuleOptions } from "@nestjs/typeorm";
 import { CONFIG_KEYS } from "./config-keys";
 
 export const typeOrmPostgres = (
-  configService: ConfigService,
+  configService: ConfigService
 ): TypeOrmModuleOptions => {
   const env = configService.get<string>(CONFIG_KEYS.APP.NODE_ENV);
 
@@ -14,7 +14,7 @@ export const typeOrmPostgres = (
     username: configService.get<string>(CONFIG_KEYS.DB.USER),
     password: configService.get<string>(CONFIG_KEYS.DB.PASS),
     database: configService.get<string>(CONFIG_KEYS.DB.NAME),
-    synchronize: env !== "production",
+    // synchronize: env !== "production",
     autoLoadEntities: true,
   };
 };

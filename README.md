@@ -48,3 +48,8 @@ keys \*
 ====================
 ssh
 ssh -i ~/.ssh/gcp_key -L 5433:10.128.0.2:5432 niltongonzano@34.69.157.202
+
+{
+"email": "nigorora@gmail.com",
+"password": "gdikoYtw8jT6JJzBAONXauxYql82"
+}

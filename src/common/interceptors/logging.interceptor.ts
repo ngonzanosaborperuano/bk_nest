@@ -18,11 +18,14 @@ export class LoggingInterceptor implements NestInterceptor {
 
     const { method, url, body, ip } = req;
     const user = (req as any).user?.email || "Anonymous"; // Si usas Passport
-
+    const safeBody = { ...body };
+    if (safeBody.password) {
+      safeBody.password = "***";
+    }
     const now = Date.now();
     this.logger.log(
       `➡️  ${method} ${url} | Body: ${JSON.stringify(
-        body
+        safeBody
       )} | IP: ${ip} | User: ${user}`
     );
 
