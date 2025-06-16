@@ -6,12 +6,15 @@ import Joi from "joi"; //Librería para validar la forma y contenido de las vari
 import apiExterna from "./common/config/api-externa.config";
 import app from "./common/config/app.config";
 import database from "./common/config/database.config";
+import jwt from "./common/config/jwt.config";
 import { typeOrmPostgres } from "./common/config/typeorm.config";
 
 import { AuthModule } from "./auth/auth.module";
 import { RedisModule } from "./common/cache/redis.module";
 import { SentryModule } from "./common/monitoring/sentry.module";
 import { RecipeModule } from "./recipe/recipe.module";
+
+import { ReportsModule } from "./report/reports.module";
 import { UsersModule } from "./user/user.module";
 
 @Module({
@@ -25,7 +28,7 @@ import { UsersModule } from "./user/user.module";
       envFilePath: ".env",
       // Carga una función que devuelve un objeto de configuración personalizado
       // (e.g. para organizar las variables).
-      load: [database, apiExterna, app],
+      load: [database, apiExterna, app, jwt],
       // Usa Joi para validar que las variables de entorno existan y tengan el
       // formato correcto antes de arrancar la app.
       validationSchema: Joi.object({
@@ -45,6 +48,8 @@ import { UsersModule } from "./user/user.module";
         REDIS_HOST: Joi.string().default("localhost"),
         REDIS_PORT: Joi.number().default(6379),
         REDIS_PASSWORD: Joi.string().allow("", null),
+        JWT_SECRET: Joi.string().required(),
+        JWT_EXPIRES: Joi.string().required(),
       }),
     }),
 
@@ -67,6 +72,7 @@ import { UsersModule } from "./user/user.module";
     RedisModule,
     UsersModule,
     AuthModule,
+    ReportsModule,
   ],
 })
 export class AppModule {}

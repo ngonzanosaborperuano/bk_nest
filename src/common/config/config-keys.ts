@@ -22,4 +22,9 @@ export const CONFIG_KEYS = {
     PORT: "redis.PORT",
     PASSWORD: "redis.PASSWORD",
   },
+  JWT: {
+    SECRET: "jwt.SECRET",
+    EXPIRES: "jwt.EXPIRES",
+    ALGORITHM: "jwt.ALGORITHM",
+  },
 };

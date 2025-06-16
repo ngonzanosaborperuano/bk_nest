@@ -25,14 +25,15 @@ async function bootstrap() {
     }
     // Swagger
     const swaggerConfig = new swagger_1.DocumentBuilder()
-        .setTitle("Spoonacular Recetas API")
+        .setTitle("Spoonacular Recetas API Nest")
         .setDescription("API para recetas aleatorias desde Spoonacular")
         .setVersion("1.0")
         .addBearerAuth({
         type: "http",
-        scheme: "bearer",
         bearerFormat: "JWT",
         in: "header",
+        name: 'Authorization',
+        description: 'JWT Authorization header using the Bearer scheme',
     })
         .build();
     const document = swagger_1.SwaggerModule.createDocument(app, swaggerConfig);

@@ -12,7 +12,7 @@ class User {
   email!: string;
 
   @Column({ name: "contrasena" })
-  password!: string;
+  contrasena!: string;
 
   @Column()
   foto?: string;

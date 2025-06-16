@@ -1,5 +1,11 @@
 import { Controller, Get, Query, UseInterceptors } from "@nestjs/common";
-import { ApiOperation, ApiQuery, ApiResponse, ApiTags } from "@nestjs/swagger";
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiQuery,
+  ApiResponse,
+  ApiTags,
+} from "@nestjs/swagger";
 
 import { CacheTTL } from "../../common/decorators/cache-ttl.decorator";
 
@@ -10,7 +16,7 @@ import { RecipeService } from "../services/recipe.service";
 @Controller("recipes")
 export class CommonController {
   constructor(private readonly commonService: RecipeService) {}
-
+  @ApiBearerAuth()
   @Get("random")
   @UseInterceptors(CacheInterceptor)
   @CacheTTL(300)

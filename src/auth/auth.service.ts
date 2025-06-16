@@ -16,26 +16,25 @@ export class AuthService {
   ) {}
 
   async signUp(signUpDto: SignUpDto): Promise<{ token: string }> {
-    const { name, email, password } = signUpDto;
+    const { name, email, contrasena } = signUpDto;
 
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const hashedPassword = await bcrypt.hash(contrasena, 10);
 
     const user = this.usersRepository.create({
       name,
       email,
-      password: hashedPassword,
+      contrasena: hashedPassword,
     });
 
     await this.usersRepository.save(user);
 
     const token = this.jwtService.sign({ id: user.id });
 
-    return { token };
+    return { token: `${token}` };
   }
 
   async login(loginDto: LoginDto): Promise<{ token: string }> {
-    const { email, password } = loginDto;
-
+    const { email, contrasena } = loginDto;
     const user = await this.usersRepository.findOne({
       where: { email },
     });
@@ -44,14 +43,13 @@ export class AuthService {
       throw new UnauthorizedException("Invalid email or password");
     }
 
-    const isPasswordMatched = await bcrypt.compare(password, user.password);
+    const isPasswordMatched = await bcrypt.compare(contrasena, user.contrasena);
 
     if (!isPasswordMatched) {
       throw new UnauthorizedException("Invalid email or password");
     }
 
     const token = this.jwtService.sign({ id: user.id });
-
-    return { token };
+    return { token: `${token}` };
   }
 }

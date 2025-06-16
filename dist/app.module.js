@@ -17,11 +17,13 @@ const joi_1 = __importDefault(require("joi")); //Librería para validar la forma
 const api_externa_config_1 = __importDefault(require("./common/config/api-externa.config"));
 const app_config_1 = __importDefault(require("./common/config/app.config"));
 const database_config_1 = __importDefault(require("./common/config/database.config"));
+const jwt_config_1 = __importDefault(require("./common/config/jwt.config"));
 const typeorm_config_1 = require("./common/config/typeorm.config");
 const auth_module_1 = require("./auth/auth.module");
 const redis_module_1 = require("./common/cache/redis.module");
 const sentry_module_1 = require("./common/monitoring/sentry.module");
 const recipe_module_1 = require("./recipe/recipe.module");
+const reports_module_1 = require("./report/reports.module");
 const user_module_1 = require("./user/user.module");
 let AppModule = class AppModule {
 };
@@ -38,7 +40,7 @@ exports.AppModule = AppModule = __decorate([
                 envFilePath: ".env",
                 // Carga una función que devuelve un objeto de configuración personalizado
                 // (e.g. para organizar las variables).
-                load: [database_config_1.default, api_externa_config_1.default, app_config_1.default],
+                load: [database_config_1.default, api_externa_config_1.default, app_config_1.default, jwt_config_1.default],
                 // Usa Joi para validar que las variables de entorno existan y tengan el
                 // formato correcto antes de arrancar la app.
                 validationSchema: joi_1.default.object({
@@ -58,6 +60,8 @@ exports.AppModule = AppModule = __decorate([
                     REDIS_HOST: joi_1.default.string().default("localhost"),
                     REDIS_PORT: joi_1.default.number().default(6379),
                     REDIS_PASSWORD: joi_1.default.string().allow("", null),
+                    JWT_SECRET: joi_1.default.string().required(),
+                    JWT_EXPIRES: joi_1.default.string().required(),
                 }),
             }),
             // Carga la configuración de TypeORM de forma asincrónica usando una función.
@@ -78,6 +82,7 @@ exports.AppModule = AppModule = __decorate([
             redis_module_1.RedisModule,
             user_module_1.UsersModule,
             auth_module_1.AuthModule,
+            reports_module_1.ReportsModule,
         ],
     })
 ], AppModule);
