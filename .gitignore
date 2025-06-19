@@ -36,3 +36,9 @@ lerna-debug.log*
 
 # keys
 keys.txt
+.env
+.env.dev
+docker-compose_dev.yml
+Dockerfile
+dump.rdb
+start-mac.sh
