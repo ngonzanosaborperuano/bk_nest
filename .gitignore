@@ -62,6 +62,3 @@ keys.txt
 # Ignorar archivos de configuración de Docker Compose
 *.override.yml
 
-# Ignorar archivos de ejemplo de entorno (puedes quitar si quieres subirlos)
-.env.example
-.env.dev.example

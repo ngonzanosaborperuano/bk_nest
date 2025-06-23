@@ -119,281 +119,158 @@ Aquí tienes una guía completa, desde lo más básico hasta conceptos avanzados
 
 ### **1. PostgreSQL (Base de Datos Relacional)**
 
-- **Utilidad:** Es tu base de datos principal para datos estructurados (usuarios, productos, pedidos, etc.). Usamos `TypeORM` como ORM para interactuar con ella.
-- **Uso Básico (Ya configurado):**
-
-  - **Conexión:** `TypeOrmModule` en tu `app.module.ts` ya se encarga de la conexión usando las variables de `database.config.ts`.
-  - **Interactuar:**
-
-    1.  **Crea una Entidad:** Define la estructura de tu tabla.
-
-        ```typescript
-        // src/user/user.entity.ts
-        import { Entity, Column, PrimaryGeneratedColumn } from "typeorm";
-
-        @Entity()
-        export class User {
-          @PrimaryGeneratedColumn()
-          id: number;
-
-          @Column()
-          name: string;
-        }
-        ```
-
-    2.  **Inyecta el Repositorio:** En tu servicio, inyecta el repositorio de la entidad para acceder a los métodos de la base de datos (`find`, `save`, `delete`, etc.).
-
-        ```typescript
-        // src/user/users.service.ts
-        import { Injectable } from "@nestjs/common";
-        import { InjectRepository } from "@nestjs/typeorm";
-        import { Repository } from "typeorm";
-        import { User } from "./user.entity";
-
-        @Injectable()
-        export class UsersService {
-          constructor(
-            @InjectRepository(User)
-            private usersRepository: Repository<User>
-          ) {}
-
-          findAll(): Promise<User[]> {
-            return this.usersRepository.find();
-          }
-        }
-        ```
-
-- **Uso Avanzado:**
-  - **Migraciones:** Gestiona cambios en el esquema de tu base de datos de forma versionada.
-  - **Relaciones:** Define relaciones entre entidades (`@OneToOne`, `@OneToMany`, `@ManyToOne`, `@ManyToMany`).
-  - **Transacciones:** Asegura la integridad de los datos agrupando múltiples operaciones en una sola unidad de trabajo.
+- **Utilidad:** Base de datos relacional robusta y de código abierto. Ideal para datos estructurados que requieren consistencia (transacciones ACID), como perfiles de usuario, pedidos, productos, etc.
+- **Ejemplo de Conexión (`app.module.ts`):** (La configuración se gestiona a través de los módulos de configuración de NestJS, inyectando las variables de entorno).
+- **Niveles de Uso:**
+  - **Básico:** Crear un CRUD (Crear, Leer, Actualizar, Borrar) para una entidad simple, como `User`. Inyectar el repositorio de TypeORM en un servicio y usar métodos como `find()`, `findOne()`, `save()` y `remove()`.
+  - **Intermedio:** Implementar relaciones entre entidades. Por ejemplo, un `User` tiene múltiples `Posts` (`@OneToMany`). Realizar consultas que unan estas tablas (`relations: ['posts']`) y gestionar la lógica de negocio que involucra a ambas entidades.
+  - **Avanzado:** Utilizar `QueryRunner` para ejecutar transacciones complejas. Por ejemplo, en un proceso de compra, registrar el `Order`, actualizar el `Stock` del producto y procesar el `Payment` como una operación atómica. Si algo falla, se revierte todo para mantener la consistencia de los datos.
 
 ### **2. Redis (Caché y Mensajería Rápida)**
 
-- **Utilidad:** Base de datos en memoria ultrarrápida. Ideal para caching, gestión de sesiones, y como un simple Pub/Sub.
-- **Uso Básico:**
-
-  1.  **Instala el cliente:** `npm install ioredis`
-  2.  **Crea un proveedor de Redis:**
-
-      ```typescript
-      // src/common/cache/redis.provider.ts
-      import { Provider } from "@nestjs/common";
-      import Redis from "ioredis";
-
-      export const REDIS_CLIENT = "REDIS_CLIENT";
-
-      export const redisProvider: Provider = {
-        provide: REDIS_CLIENT,
-        useFactory: () => {
-          return new Redis({
-            host: process.env.REDIS_HOST,
-            port: parseInt(process.env.REDIS_PORT, 10),
-            password: process.env.REDIS_PASSWORD,
-          });
-        },
-      };
-      ```
-
-  3.  **Inyéctalo y úsalo:**
-
-      ```typescript
-      import { Injectable, Inject } from "@nestjs/common";
-      import { Redis } from "ioredis";
-      import { REDIS_CLIENT } from "./redis.provider";
-
-      @Injectable()
-      export class MyService {
-        constructor(
-          @Inject(REDIS_CLIENT) private readonly redisClient: Redis
-        ) {}
-
-        async cacheSomething(key: string, value: string) {
-          // Guarda un valor en caché por 1 hora
-          await this.redisClient.set(key, value, "EX", 3600);
-        }
-
-        async getSomething(key: string): Promise<string> {
-          return await this.redisClient.get(key);
-        }
-      }
-      ```
-
-- **Uso Avanzado:**
-  - **Caching Automático:** Crea un interceptor o decorador en NestJS para cachear automáticamente los resultados de funciones.
-  - **Redis Streams:** Úsalo como un "mini-Kafka" para flujos de eventos persistentes.
-  - **Rate Limiting:** Almacena contadores de peticiones por IP o usuario para limitar el acceso.
+- **Utilidad:** Almacén de datos en memoria extremadamente rápido. Se usa principalmente como caché para reducir la carga en las bases de datos principales y acelerar las respuestas de la API.
+- **Ejemplo de Conexión (usando `cache-manager`):** (La configuración se gestiona a través de los módulos de configuración de NestJS, inyectando las variables de entorno).
+- **Niveles de Uso:**
+  - **Básico:** Cachear la respuesta de un endpoint que raramente cambia, como una lista de categorías de productos. Se usa un interceptor de NestJS que guarda el resultado en Redis la primera vez y lo sirve desde allí en peticiones posteriores.
+  - **Intermedio:** Implementar un sistema de "rate limiting" para un endpoint específico. Se usa Redis para almacenar un contador por IP o por usuario, incrementándolo con cada petición y bloqueando si se supera un umbral en un período de tiempo determinado.
+  - **Avanzado:** Usar Redis como una cola de trabajos simple para tareas de baja prioridad. Por ejemplo, cuando un usuario pide un reporte, se añade una tarea a una lista de Redis con `LPUSH`. Un worker separado escucha esa lista con `BRPOP`, genera el reporte en segundo plano y notifica al usuario cuando está listo.
 
 ### **3. RabbitMQ (Message Broker)**
 
-- **Utilidad:** Para comunicación asíncrona entre microservicios. Permite desacoplar servicios y procesar tareas en segundo plano (ej: enviar emails, procesar imágenes).
-- **Uso Básico:**
-
-  1.  **Instala la librería:** `npm install amqplib`
-  2.  **Crea un "Publisher" (el que envía):**
-
-      ```typescript
-      import * as amqp from "amqplib";
-
-      async function publishMessage() {
-        const connection = await amqp.connect(
-          `amqp://${process.env.RABBITMQ_USER}:${process.env.RABBITMQ_PASSWORD}@localhost:${process.env.RABBITMQ_AMQP_PORT}`
-        );
-        const channel = await connection.createChannel();
-        const queue = "task_queue";
-        const msg = { text: "Hello World!" };
-
-        await channel.assertQueue(queue, { durable: true });
-        channel.sendToQueue(queue, Buffer.from(JSON.stringify(msg)));
-        console.log(" [x] Sent '%s'", msg);
-      }
-      ```
-
-  3.  **Crea un "Consumer" (el que recibe):**
-
-      ```typescript
-      // En otro servicio o en el mismo para procesar en segundo plano
-      import * as amqp from "amqplib";
-
-      async function consumeMessage() {
-        const connection = await amqp.connect(
-          `amqp://${process.env.RABBITMQ_USER}:${process.env.RABBITMQ_PASSWORD}@localhost:${process.env.RABBITMQ_AMQP_PORT}`
-        );
-        const channel = await connection.createChannel();
-        const queue = "task_queue";
-
-        await channel.assertQueue(queue, { durable: true });
-        channel.consume(
-          queue,
-          (msg) => {
-            console.log(" [x] Received %s", JSON.parse(msg.content.toString()));
-          },
-          { noAck: true }
-        );
-      }
-      ```
-
-- **Uso Avanzado:**
-  - **Patrones de Exchange:** Aprende sobre `Direct`, `Fanout`, y `Topic` exchanges para ruteo de mensajes complejo.
-  - **Dead-Letter Queues:** Configura colas para mensajes que no pudieron ser procesados, evitando perderlos.
-  - **Integración con NestJS:** Usa el paquete `@nestjs/microservices` con el transporter de RabbitMQ para una integración nativa.
+- **Utilidad:** Bróker de mensajes robusto que implementa el protocolo AMQP. Ideal para desacoplar servicios (microservicios), asegurar la entrega de mensajes y procesar tareas en segundo plano.
+- **Ejemplo de Conexión (como microservicio NestJS):** (La conexión del microservicio se define en el `main.ts` utilizando las variables de entorno correspondientes).
+- **Niveles de Uso:**
+  - **Básico:** Un servicio `Auth` publica un mensaje `user_registered` en una cola simple (ej. `user_events`) cada vez que un nuevo usuario se registra.
+  - **Intermedio:** Un servicio de `Notifications` consume los mensajes de la cola `user_events` para enviar un correo de bienvenida. El mensaje no se elimina de la cola hasta que el correo se envía con éxito (usando `ack`), asegurando la entrega.
+  - **Avanzado:** Implementar el patrón `Saga` para orquestar transacciones distribuidas. Un servicio de `Orders` inicia la saga publicando un evento. Múltiples servicios (`Billing`, `Shipping`, `Inventory`) escuchan y responden, publicando sus propios eventos. Si un paso falla, se publican eventos de compensación para revertir los pasos anteriores. Se usan `Topic Exchanges` para enrutar los eventos a los consumidores correctos.
 
 ### **4. MongoDB (Base de Datos NoSQL)**
 
-- **Utilidad:** Perfecta para datos no estructurados, semi-estructurados o que cambian con frecuencia (ej: logs, catálogos de productos flexibles, contenido de usuario).
-- **Uso Básico (con Mongoose):**
-
-  1.  **Instala librerías:** `npm install mongoose @nestjs/mongoose`
-  2.  **Conecta en `app.module.ts`:**
-
-      ```typescript
-      import { Module } from "@nestjs/common";
-      import { MongooseModule } from "@nestjs/mongoose";
-
-      @Module({
-        imports: [
-          MongooseModule.forRoot(
-            `mongodb://${process.env.MONGO_USER}:${process.env.MONGO_PASSWORD}@localhost:${process.env.MONGO_PORT}/`
-          ),
-        ],
-      })
-      export class AppModule {}
-      ```
-
-  3.  **Crea un Schema y úsalo:**
-
-      ```typescript
-      import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
-      import { Document } from "mongoose";
-
-      @Schema()
-      export class Product extends Document {
-        @Prop()
-        name: string;
-
-        @Prop({ type: Object }) // Para datos flexibles
-        attributes: Record<string, any>;
-      }
-
-      export const ProductSchema = SchemaFactory.createForClass(Product);
-      ```
-
-- **Uso Avanzado:**
-  - **Aggregation Framework:** Realiza transformaciones complejas de datos directamente en la base de datos.
-  - **Indexing:** Crea índices para acelerar drásticamente las consultas.
-  - **Mongoose Middlewares:** Ejecuta lógica antes o después de operaciones como `save` o `find`.
+- **Utilidad:** Base de datos NoSQL orientada a documentos. Excelente para datos no estructurados o semi-estructurados que evolucionan rápidamente. Su flexibilidad permite un desarrollo más ágil.
+- **Ejemplo de Conexión (`app.module.ts`):** (La configuración se gestiona a través de los módulos de configuración de NestJS, inyectando las variables de entorno).
+- **Niveles de Uso:**
+  - **Básico:** Guardar documentos flexibles, como logs de eventos de la aplicación. Cada log puede tener una estructura ligeramente diferente, y MongoDB la aceptará sin problemas.
+  - **Intermedio:** Crear un sistema de comentarios para un blog. Un documento `Post` contiene un array de sub-documentos `Comment`. Esto permite recuperar una publicación y todos sus comentarios en una sola consulta.
+  - **Avanzado:** Implementar el `Aggregation Pipeline` para generar reportes complejos. Por ejemplo, calcular el "producto más vendido del mes" agrupando datos de una colección de `Orders`, sumando cantidades y ordenando los resultados, todo dentro de una sola consulta a la base de datos.
 
 ### **5. Minio (Almacenamiento de Objetos S3)**
 
-- **Utilidad:** Para guardar archivos grandes (imágenes, videos, backups, etc.) de forma escalable y con una API estándar (S3).
-- **Uso Básico:**
-
-  1.  **Instala la librería:** `npm install minio`
-  2.  **Crea un cliente y sube un archivo:**
-
-      ```typescript
-      import * as Minio from "minio";
-
-      const minioClient = new Minio.Client({
-        endPoint: "localhost",
-        port: parseInt(process.env.MINIO_API_PORT, 10),
-        useSSL: false,
-        accessKey: process.env.MINIO_ACCESS_KEY,
-        secretKey: process.env.MINIO_SECRET_KEY,
-      });
-
-      async function uploadFile(
-        bucketName: string,
-        objectName: string,
-        filePath: string
-      ) {
-        await minioClient.fPutObject(bucketName, objectName, filePath, {});
-        console.log("File uploaded successfully.");
-      }
-      ```
-
-- **Uso Avanzado:**
-  - **URLs Pre-firmadas:** Genera URLs temporales para que los usuarios puedan subir o descargar archivos directamente desde el frontend sin exponer tus credenciales.
-  - **Políticas de Ciclo de Vida:** Configura reglas para mover archivos a almacenamientos más fríos o borrarlos después de un tiempo.
+- **Utilidad:** Almacenamiento de objetos de alto rendimiento compatible con la API de Amazon S3. Perfecto para guardar archivos grandes como imágenes, videos, backups o cualquier tipo de dato no estructurado.
+- **Ejemplo de Conexión (usando `aws-sdk`):** (La conexión se establece instanciando el cliente S3 con las variables de entorno de Minio).
+- **Niveles de Uso:**
+  - **Básico:** Un endpoint de la API recibe una imagen para el perfil de un usuario, la sube a un "bucket" de Minio y guarda la URL del objeto en la base de datos de PostgreSQL junto al perfil del usuario.
+  - **Intermedio:** Generar una "URL pre-firmada" (`presigned URL`) con una validez de 5 minutos. El servidor envía esta URL al cliente (frontend), y el frontend la usa para subir un archivo grande directamente a Minio, sin que los datos pasen por el servidor de la aplicación.
+  - **Avanzado:** Configurar una política de ciclo de vida en un bucket de Minio. Por ejemplo, los archivos en el bucket `logs` se mueven automáticamente a un "storage class" más económico después de 30 días y se eliminan permanentemente después de 365 días para gestionar costos y cumplir con políticas de retención.
 
 ### **6. Kafka (Plataforma de Streaming de Eventos)**
 
-- **Utilidad:** Es el "sistema nervioso central" para arquitecturas basadas en eventos. Ideal para procesar flujos masivos de datos en tiempo real (telemetría, logs, clickstreams).
-- **Uso Básico:**
+- **Utilidad:** Plataforma de streaming de eventos distribuida, diseñada para alta ingesta de datos y persistencia. Ideal para `event sourcing`, análisis en tiempo real y como bus de eventos central en arquitecturas de microservicios.
+- **Ejemplo de Conexión (como microservicio NestJS):** (La conexión del microservicio se define en el `main.ts` utilizando las variables de entorno correspondientes).
+- **Niveles de Uso:**
+  - **Básico:** Un servicio `API Gateway` publica cada petición recibida (ej. `GET /products/123`) a un tópico de Kafka llamado `api_logs`.
+  - **Intermedio:** Un servicio de `Analytics` consume el flujo de `api_logs` en tiempo real, cuenta las peticiones por ruta y las muestra en un dashboard. El consumidor pertenece a un `consumer group` para poder escalar si el tráfico aumenta.
+  - **Avanzado:** Implementar `Event Sourcing`. El estado de una entidad (ej. una `Order`) no se guarda en una tabla, sino que se reconstruye a partir de la secuencia de eventos inmutables (`order_created`, `item_added`, `order_shipped`) que se han publicado en un tópico de Kafka para esa orden específica. Esto proporciona un historial de auditoría completo.
 
-  1.  **Instala la librería:** `npm install kafkajs`
-  2.  **Producer (produce eventos):**
+---
 
-      ```typescript
-      import { Kafka } from "kafkajs";
+## Acceso a CLIs de Servicios (vía Docker Exec)
 
-      const kafka = new Kafka({
-        brokers: [`localhost:${process.env.KAFKA_EXTERNAL_PORT}`],
-      });
-      const producer = kafka.producer();
+Para depurar o interactuar directamente con los servicios, puedes usar `docker exec` para acceder a sus herramientas de línea de comando.
 
-      await producer.connect();
-      await producer.send({
-        topic: "user-signups",
-        messages: [{ value: '{"userId": 1, "email": "test@example.com"}' }],
-      });
-      ```
+### PostgreSQL
 
-  3.  **Consumer (consume eventos):**
+Para acceder a la consola `psql`:
 
-      ```typescript
-      const consumer = kafka.consumer({ groupId: "my-app-group" });
+```bash
+docker exec -it postgres psql -U <user> -d <name base de datos>
+```
 
-      await consumer.connect();
-      await consumer.subscribe({ topic: "user-signups", fromBeginning: true });
-      await consumer.run({
-        eachMessage: async ({ topic, partition, message }) => {
-          console.log({ value: message.value.toString() });
-        },
-      });
-      ```
+Se te pedirá la contraseña, que está en tu archivo `.env`.
 
-- **Uso Avanzado:**
-  - **Consumer Groups:** Escala el procesamiento de eventos haciendo que múltiples instancias de tu servicio trabajen en la misma cola.
-  - **Particiones:** Aumenta el paralelismo y el rendimiento dividiendo un topic en múltiples particiones.
-  - **Kafka Connect:** Integra Kafka con otras fuentes de datos (como bases de datos) sin escribir código.
+### Redis
+
+Para acceder a la `redis-cli`:
+
+```bash
+docker exec -it redis redis-cli
+```
+
+Una vez dentro, debes autenticarte:
+
+```redis
+AUTH tu_password_de_redis_aqui
+```
+
+Comandos útiles: `KEYS *`, `GET mi_key`, `FLUSHALL` (borra todo).
+
+### MongoDB
+
+Para acceder a la `mongosh` (Mongo Shell):
+
+```bash
+docker exec -it mongodb mongosh -u <user> -p <password>
+```
+
+### Kafka
+
+Para interactuar con los tópicos de Kafka:
+
+- **Listar todos los tópicos:**
+  ```bash
+  docker exec -it kafka kafka-topics --bootstrap-server kafka:29092 --list
+  ```
+- **Producir un mensaje en un tópico:**
+  ```bash
+  docker exec -it kafka kafka-console-producer --bootstrap-server kafka:29092 --topic nombre_del_topico
+  ```
+  (Escribe tu mensaje y presiona Enter)
+- **Consumir mensajes de un tópico:**
+  ```bash
+  docker exec -it kafka kafka-console-consumer --bootstrap-server kafka:29092 --topic nombre_del_topico --from-beginning
+  ```
+
+### RabbitMQ
+
+Para usar las herramientas de administración de RabbitMQ:
+
+```bash
+docker exec -it rabbitmq rabbitmqctl list_queues
+```
+
+Puedes cambiar `list_queues` por otros comandos como `list_exchanges`, `list_bindings`, etc.
+
+### MQTT (Mosquitto)
+
+El contenedor de Mosquitto incluye clientes de publicación y suscripción.
+
+- **Suscribirse a un tópico para ver mensajes:**
+  ```bash
+  docker exec -it mqtt mosquitto_sub -h localhost -t "test/topic" -v
+  ```
+- **Publicar un mensaje en un tópico (en otra terminal):**
+  ```bash
+  docker exec -it mqtt mosquitto_pub -h localhost -t "test/topic" -m "Hola MQTT!"
+  ```
+
+### Elasticsearch
+
+Elasticsearch se maneja principalmente a través de su API REST con `curl`.
+
+- **Ver la salud del cluster:**
+  ```bash
+  docker exec -it elasticsearch curl "localhost:9200/_cat/health?v"
+  ```
+- **Listar todos los índices:**
+  ```bash
+  docker exec -it elasticsearch curl "localhost:9200/_cat/indices?v"
+  ```
+
+### Shell Genérica del Contenedor
+
+Para cualquier otro contenedor, si necesitas explorar su sistema de archivos, puedes abrir una shell:
+
+```bash
+docker exec -it nombre_del_contenedor /bin/sh
+```
+
+(Reemplaza `nombre_del_contenedor` por `minio`, `nats`, etc.)
