@@ -1,44 +1,67 @@
-# compiled output
-/dist
-/node_modules
-
-# Logs
-logs
-*.log
+# Node.js
+node_modules/
 npm-debug.log*
-pnpm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-lerna-debug.log*
 
-# OS
-.DS_Store
+# Salida de compilación
+dist/
+build/
 
-# Tests
-/coverage
-/.nyc_output
-
-# IDEs and editors
-/.idea
-.project
-.classpath
-.c9/
-*.launch
-.settings/
-*.sublime-workspace
-
-# IDE - VSCode
-.vscode/*
-!.vscode/settings.json
-!.vscode/tasks.json
-!.vscode/launch.json
-!.vscode/extensions.json
-
-# keys
-keys.txt
+# Archivos de entorno
 .env
-.env.dev
-docker-compose_dev.yml
-Dockerfile
+.env.*
+
+# Archivos de configuración sensibles o temporales
+*.local
+*.env.local
+*.env.development.local
+*.env.test.local
+*.env.production.local
+
+# Archivos de base de datos y dumps
 dump.rdb
-start-mac.sh
+*.sqlite
+*.db
+
+# Archivos de logs
+logs/
+*.log
+
+# Archivos de Docker
+*.pid
+*.seed
+
+# Archivos de cobertura de tests
+coverage/
+.nyc_output/
+
+# Archivos de configuración de IDEs y editores
+.idea/
+.vscode/
+*.sublime-workspace
+*.sublime-project
+
+# Archivos del sistema operativo
+.DS_Store
+Thumbs.db
+
+# Otros archivos temporales
+*.swp
+*.tmp
+
+# Archivos de salida de herramientas
+*.tgz
+
+# Ignorar archivos de configuración de Sentry
+sentry.properties
+
+# Ignorar archivos de configuración de servicios externos
+keys.txt
+
+# Ignorar archivos de configuración de Docker Compose
+*.override.yml
+
+# Ignorar archivos de ejemplo de entorno (puedes quitar si quieres subirlos)
+.env.example
+.env.dev.example

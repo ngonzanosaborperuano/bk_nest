@@ -16,6 +16,7 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
   constructor(private readonly configService: ConfigService) {}
 
   onModuleInit() {
+    
     this.client = new Redis({
       host: this.configService.get<string>(CONFIG_KEYS.REDIS.HOST, "localhost"),
       port: this.configService.get<number>(CONFIG_KEYS.REDIS.PORT, 6379),

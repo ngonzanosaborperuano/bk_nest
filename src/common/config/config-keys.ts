@@ -7,9 +7,9 @@ export const CONFIG_KEYS = {
     NAME: "database.DB_NAME",
   },
   API_EXTERNA: {
-    KEY: "apiExterna.RAPIDAPI_KEY",
-    URL: "apiExterna.RAPIDAPI_BASE_URL",
-    HEADER: "apiExterna.HEADER_SPOONACULAR",
+    //KEY: "apiExterna.RAPIDAPI_KEY",
+    //URL: "apiExterna.RAPIDAPI_BASE_URL",
+    //HEADER: "apiExterna.HEADER_SPOONACULAR",
     SENTRY_DNS: "apiExterna.SENTRY_DSN",
   },
   APP: {

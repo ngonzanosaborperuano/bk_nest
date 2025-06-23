@@ -22,7 +22,6 @@ const typeorm_config_1 = require("./common/config/typeorm.config");
 const auth_module_1 = require("./auth/auth.module");
 const redis_module_1 = require("./common/cache/redis.module");
 const sentry_module_1 = require("./common/monitoring/sentry.module");
-const recipe_module_1 = require("./recipe/recipe.module");
 const reports_module_1 = require("./report/reports.module");
 const user_module_1 = require("./user/user.module");
 let AppModule = class AppModule {
@@ -44,17 +43,14 @@ exports.AppModule = AppModule = __decorate([
                 // Usa Joi para validar que las variables de entorno existan y tengan el
                 // formato correcto antes de arrancar la app.
                 validationSchema: joi_1.default.object({
-                    RAPIDAPI_KEY: joi_1.default.string().required(),
-                    DB_HOST: joi_1.default.string().required(),
-                    DB_PORT: joi_1.default.number().default(5433),
-                    DB_NAME: joi_1.default.string().required(),
-                    DB_USER: joi_1.default.string().required(),
-                    DB_PASS: joi_1.default.string().required(),
+                    POSTGRES_HOST: joi_1.default.string().required(),
+                    POSTGRES_PORT: joi_1.default.number().default(5433),
+                    POSTGRES_DB: joi_1.default.string().required(),
+                    POSTGRES_USER: joi_1.default.string().required(),
+                    POSTGRES_PASSWORD: joi_1.default.string().required(),
                     NODE_ENV: joi_1.default.string()
                         .valid("development", "production", "test", "provision")
                         .default("development"),
-                    RAPIDAPI_BASE_URL: joi_1.default.string().required(),
-                    HEADER_SPOONACULAR: joi_1.default.string().required(),
                     PORT: joi_1.default.number().default(3000),
                     SENTRY_DSN: joi_1.default.string().required(),
                     REDIS_HOST: joi_1.default.string().default("localhost"),
@@ -77,7 +73,6 @@ exports.AppModule = AppModule = __decorate([
             // Módulo común
             // Este módulo contiene servicios reutilizables (pipes, DTOs comunes, validadores,
             // utilidades, etc.) que serán accesibles en toda la aplicación.
-            recipe_module_1.RecipeModule,
             sentry_module_1.SentryModule,
             redis_module_1.RedisModule,
             user_module_1.UsersModule,
