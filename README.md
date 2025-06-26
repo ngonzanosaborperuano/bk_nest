@@ -49,13 +49,13 @@ A continuación se detallan todos los servicios del stack, sus URLs de acceso y 
 
 | Servicio                | Puerto (Host) | URL de Acceso                                    | Ver Logs                          | Mantenimiento / Comandos Útiles                                                    |
 | :---------------------- | :------------ | :----------------------------------------------- | :-------------------------------- | :--------------------------------------------------------------------------------- |
-| 📦 **NestJS App**       | 3000          | [http://localhost:3000](http://localhost:3000)   | `docker logs -f cocinando_nest`   | Conectarse al shell del contenedor: `docker exec -it cocinando_nest sh`            |
+| 📦 **NestJS App**       | 3000          | [http://localhost:3002](http://localhost:3002)   | `docker logs -f cocinando_nest`   | Conectarse al shell del contenedor: `docker exec -it cocinando_nest sh`            |
 | 🐘 **PostgreSQL**       | 5432          | N/A                                              | `docker logs -f postgres`         | Conectarse con psql: `docker exec -it postgres psql -U user -d recetasdb`          |
 | 🧑‍💻 **PGAdmin**          | 5050          | [http://localhost:5050](http://localhost:5050)   | `docker logs -f pgadmin`          | Usa las credenciales del `.env` para entrar.                                       |
 | 🗄️ **Redis**            | 6379          | N/A                                              | `docker logs -f redis`            | Conectarse a la CLI: `docker exec -it redis redis-cli` (luego usa `AUTH password`) |
 | 🐇 **RabbitMQ**         | 15672         | [http://localhost:15672](http://localhost:15672) | `docker logs -f rabbitmq`         | Usa las credenciales del `.env` para entrar.                                       |
 | 🪣 **Minio**            | 9001          | [http://localhost:9001](http://localhost:9001)   | `docker logs -f minio`            | Almacenamiento de objetos compatible con S3.                                       |
-| 📊 **Grafana**          | 3002          | [http://localhost:3002](http://localhost:3002)   | `docker logs -f grafana`          | Visualización de métricas y dashboards.                                            |
+| 📊 **Grafana**          | 3010          | [http://localhost:3010](http://localhost:3010)   | `docker logs -f grafana`          | Visualización de métricas y dashboards.                                            |
 | 🍃 **MongoDB**          | 27017         | N/A                                              | `docker logs -f mongodb`          | Conectarse al shell: `docker exec -it mongodb mongosh -u user -p password`         |
 | 🍃 **Mongo Express**    | 8081          | [http://localhost:8081](http://localhost:8081)   | `docker logs -f mongo-express`    | Interfaz web para MongoDB.                                                         |
 | ✈️ **NATS**             | 8222          | [http://localhost:8222](http://localhost:8222)   | `docker logs -f nats`             | Servidor de mensajería de alta performance.                                        |
