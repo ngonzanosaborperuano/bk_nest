@@ -1,10 +1,44 @@
-FROM node:22
+FROM node:22-slim AS deps
 
-# Define el directorio de trabajo dentro del contenedor
-WORKDIR /usr/src/app
+WORKDIR /app
+COPY package*.json ./
+RUN npm install
 
-# Expone el puerto que usará la aplicación
+COPY . .
+FROM node:22-slim
+
+WORKDIR /app
+
+COPY --from=deps /app/node_modules ./node_modules
+COPY . .
+
 EXPOSE 3002
 
-# El comando por defecto, que puede ser sobreescrito por docker-compose
-CMD [ "npm", "run", "start:dev" ]
+CMD ["npm", "run", "start:dev"]
+
+#PROD
+# Etapa 1: Build
+#FROM node:22-slim AS build
+#
+#WORKDIR /app
+#
+#COPY package*.json ./
+#RUN npm install
+#
+#COPY . .
+#RUN npm run build
+#
+## Etapa 2: Producción
+#FROM node:22-slim
+#
+#WORKDIR /app
+#
+#COPY package*.json ./
+#RUN npm install --omit=dev
+#
+## Solo copia el código compilado y lo necesario
+#COPY --from=build /app/dist ./dist
+#
+#EXPOSE 3002
+#
+#CMD ["node", "dist/main"]

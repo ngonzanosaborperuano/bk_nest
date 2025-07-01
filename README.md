@@ -49,7 +49,7 @@ A continuación se detallan todos los servicios del stack, sus URLs de acceso y 
 
 | Servicio                | Puerto (Host) | URL de Acceso                                    | Ver Logs                          | Mantenimiento / Comandos Útiles                                                    |
 | :---------------------- | :------------ | :----------------------------------------------- | :-------------------------------- | :--------------------------------------------------------------------------------- |
-| 📦 **NestJS App**       | 3000          | [http://localhost:3002](http://localhost:3002)   | `docker logs -f cocinando_nest`   | Conectarse al shell del contenedor: `docker exec -it cocinando_nest sh`            |
+| 📦 **NestJS App**       | 3002          | [http://localhost:3002](http://localhost:3002)   | `docker logs -f cocinando_nest`   | Conectarse al shell del contenedor: `docker exec -it cocinando_nest sh`            |
 | 🐘 **PostgreSQL**       | 5432          | N/A                                              | `docker logs -f postgres`         | Conectarse con psql: `docker exec -it postgres psql -U user -d recetasdb`          |
 | 🧑‍💻 **PGAdmin**          | 5050          | [http://localhost:5050](http://localhost:5050)   | `docker logs -f pgadmin`          | Usa las credenciales del `.env` para entrar.                                       |
 | 🗄️ **Redis**            | 6379          | N/A                                              | `docker logs -f redis`            | Conectarse a la CLI: `docker exec -it redis redis-cli` (luego usa `AUTH password`) |

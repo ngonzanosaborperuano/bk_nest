@@ -9,4 +9,4 @@ scrape_configs:
   # Nuevo trabajo para monitorear tu aplicación NestJS
   - job_name: "nest-app"
     static_configs:
-      - targets: ["nest_app:3000"]
+      - targets: ["nest_app:3002"]
