@@ -10,7 +10,7 @@ export const typeOrmPostgres = (
   return {
     type: "postgres",
     host: configService.get<string>(CONFIG_KEYS.DB.HOST),
-    port: configService.get<number>(CONFIG_KEYS.DB.PORT) ?? 5433,
+    port: configService.get<number>(CONFIG_KEYS.DB.PORT) ?? 5432,
     username: configService.get<string>(CONFIG_KEYS.DB.USER),
     password: configService.get<string>(CONFIG_KEYS.DB.PASS),
     database: configService.get<string>(CONFIG_KEYS.DB.NAME),
