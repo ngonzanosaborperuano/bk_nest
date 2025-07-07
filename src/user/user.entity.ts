@@ -6,7 +6,7 @@ class User {
   id?: number;
 
   @Column({ name: "nombre_completo" })
-  name!: string;
+  fullname!: string;
 
   @Column({ unique: true })
   email!: string;
@@ -19,6 +19,9 @@ class User {
 
   @Column()
   estado?: boolean;
+
+  @Column({ name: "fecha_creacion" })
+  fechaCreacion!: string;
 }
 
 export default User;

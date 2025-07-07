@@ -1,18 +1,22 @@
-import { Injectable, UnauthorizedException } from "@nestjs/common";
+import { Inject, Injectable, UnauthorizedException } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 import { InjectRepository } from "@nestjs/typeorm";
 import * as bcrypt from "bcryptjs";
+import { Knex } from "knex";
 import { Repository } from "typeorm";
+import { KNEX } from "../report/knex.provider";
 import User from "../user/user.entity";
 import { LoginDto } from "./dto/login.dto";
 import { SignUpDto } from "./dto/signup.dto";
+import { UsuarioDto } from "./dto/usuario.dto";
 
 @Injectable()
 export class AuthService {
   constructor(
     @InjectRepository(User)
     private usersRepository: Repository<User>,
-    private jwtService: JwtService
+    private jwtService: JwtService,
+    @Inject(KNEX) private readonly knex: Knex
   ) {}
 
   async signUp(signUpDto: SignUpDto): Promise<{ token: string }> {
@@ -21,7 +25,7 @@ export class AuthService {
     const hashedPassword = await bcrypt.hash(contrasena, 10);
 
     const user = this.usersRepository.create({
-      name,
+      fullname: name,
       email,
       contrasena: hashedPassword,
     });
@@ -33,7 +37,9 @@ export class AuthService {
     return { token: `${token}` };
   }
 
-  async login(loginDto: LoginDto): Promise<{ token: string }> {
+  async login(
+    loginDto: LoginDto
+  ): Promise<{ data: UsuarioDto; success: boolean; message: string }> {
     const { email, contrasena } = loginDto;
     const user = await this.usersRepository.findOne({
       where: { email },
@@ -50,6 +56,57 @@ export class AuthService {
     }
 
     const token = this.jwtService.sign({ id: user.id });
-    return { token: `${token}` };
+    const userData: UsuarioDto = {
+      id: user.id!,
+      nombreCompleto: user.fullname,
+      email: user.email,
+      foto: user.foto,
+      fecha_creacion: user.fechaCreacion,
+      contrasena: user.contrasena,
+      sessionToken: `${token}`,
+    };
+    return {
+      data: userData,
+      success: true,
+      message: "Usuario logeado exitosamente",
+    };
+  }
+
+  async logout(user: User): Promise<{ success: boolean; message: string }> {
+    return {
+      success: true,
+      message: "Usuario deslogeado exitosamente",
+    };
+  }
+
+  async search(
+    email: string
+  ): Promise<{ data: UsuarioDto; success: boolean; message: string }> {
+    const result = await this.knex.raw(
+      `SELECT * FROM find_usuario_por_email(?)`,
+      [email]
+    );
+
+    // Verificar si existe el usuario
+    if (!result.rows || result.rows.length === 0) {
+      throw new UnauthorizedException("Usuario no encontrado");
+    }
+
+    const usuario = result.rows[0];
+
+    const userData: UsuarioDto = {
+      id: usuario.id,
+      nombreCompleto: usuario.nombre_completo,
+      email: usuario.email,
+      foto: usuario.foto,
+      fecha_creacion: usuario.fecha_creacion,
+      contrasena: usuario.contrasena,
+    };
+
+    return {
+      data: userData,
+      success: true,
+      message: "Usuario encontrado exitosamente",
+    };
   }
 }

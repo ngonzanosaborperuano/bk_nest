@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Logger, Post } from "@nestjs/common";
+import { Body, Controller, Get, Logger, Param, Post } from "@nestjs/common";
 import { ApiBearerAuth } from "@nestjs/swagger";
 import { CurrentUser } from "../common/decorators/current-user.decorator";
 import { Public } from "../common/decorators/public.decorator";
@@ -6,6 +6,7 @@ import User from "../user/user.entity";
 import { AuthService } from "./auth.service";
 import { LoginDto } from "./dto/login.dto";
 import { SignUpDto } from "./dto/signup.dto";
+import { UsuarioDto } from "./dto/usuario.dto";
 
 @Controller("auth")
 export class AuthController {
@@ -18,8 +19,24 @@ export class AuthController {
   }
   @Public()
   @Post("/login")
-  login(@Body() loginDto: LoginDto): Promise<{ token: string }> {
+  login(
+    @Body() loginDto: LoginDto
+  ): Promise<{ data: UsuarioDto; success: boolean; message: string }> {
     return this.authService.login(loginDto);
+  }
+
+  @Public()
+  @Post("/logout")
+  logout(@Body() user: User): Promise<{ success: boolean; message: string }> {
+    return this.authService.logout(user);
+  }
+
+  @Public()
+  @Get("/correo/:email")
+  search(
+    @Param("email") email: string
+  ): Promise<{ data: UsuarioDto; success: boolean; message: string }> {
+    return this.authService.search(email);
   }
 
   @ApiBearerAuth()

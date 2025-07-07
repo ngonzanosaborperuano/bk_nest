@@ -6,7 +6,7 @@ import { ReportsService } from "./reports.service";
 
 @Module({
   providers: [ReportsService, KnexProvider],
-  exports: [ReportsService],
+  exports: [ReportsService, KnexProvider],
   controllers: [ReportsController],
 })
 export class ReportsModule {}

@@ -4,6 +4,7 @@ import { JwtModule } from "@nestjs/jwt";
 import { PassportModule } from "@nestjs/passport";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { CONFIG_KEYS } from "../common/config/config-keys";
+import { ReportsModule } from "../report/reports.module";
 import User from "../user/user.entity";
 import { AuthController } from "./auth.controller";
 import { AuthService } from "./auth.service";
@@ -26,6 +27,7 @@ import { JwtStrategy } from "./strategy/jwt.strategy";
       },
     }),
     TypeOrmModule.forFeature([User]),
+    ReportsModule,
   ],
   controllers: [AuthController],
   providers: [AuthService, JwtStrategy],
