@@ -72,13 +72,6 @@ export class AuthService {
     };
   }
 
-  async logout(user: User): Promise<{ success: boolean; message: string }> {
-    return {
-      success: true,
-      message: "Usuario deslogeado exitosamente",
-    };
-  }
-
   async search(
     email: string
   ): Promise<{ data: UsuarioDto; success: boolean; message: string }> {

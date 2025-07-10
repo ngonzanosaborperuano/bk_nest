@@ -26,12 +26,6 @@ export class AuthController {
   }
 
   @Public()
-  @Post("/logout")
-  logout(@Body() user: User): Promise<{ success: boolean; message: string }> {
-    return this.authService.logout(user);
-  }
-
-  @Public()
   @Get("/correo/:email")
   search(
     @Param("email") email: string
