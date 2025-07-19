@@ -1,14 +1,6 @@
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  Param,
-  Post,
-  UseGuards,
-} from "@nestjs/common";
-import { AuthGuard } from "@nestjs/passport";
+import { Body, Controller, Delete, Get, Param, Post } from "@nestjs/common";
 import { ApiTags } from "@nestjs/swagger";
+import { Public } from "../common/decorators/public.decorator";
 import { CreateUserDto } from "./dto/user.dto";
 import User from "./user.entity";
 import { UsersService } from "./users.service";
@@ -30,8 +22,8 @@ export class UsersController {
     return user;
   }
 
+  @Public()
   @Post()
-  @UseGuards(AuthGuard("jwt"))
   async createUser(@Body() createUserDto: CreateUserDto) {
     const newUser = await this.usersService.createUser(createUserDto);
     return newUser;

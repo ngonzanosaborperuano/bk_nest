@@ -82,7 +82,19 @@ export class AuthService {
 
     // Verificar si existe el usuario
     if (!result.rows || result.rows.length === 0) {
-      throw new UnauthorizedException("Usuario no encontrado");
+      const userData: UsuarioDto = {
+        id: 0,
+        nombreCompleto: "",
+        email: "",
+        foto: "",
+        fecha_creacion: "",
+        contrasena: "",
+      };
+      return {
+        data: userData,
+        success: false,
+        message: "Usuario no encontrado",
+      };
     }
 
     const usuario = result.rows[0];
