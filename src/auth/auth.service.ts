@@ -25,7 +25,7 @@ export class AuthService {
     const hashedPassword = await bcrypt.hash(contrasena, 10);
 
     const user = this.usersRepository.create({
-      fullname: name,
+      nombre_completo: name,
       email,
       contrasena: hashedPassword,
     });
@@ -58,12 +58,12 @@ export class AuthService {
     const token = this.jwtService.sign({ id: user.id });
     const userData: UsuarioDto = {
       id: user.id!,
-      nombreCompleto: user.fullname,
+      nombre_completo: user.nombre_completo,
       email: user.email,
       foto: user.foto,
-      fecha_creacion: user.fechaCreacion,
+      fecha_creacion: user.fecha_creacion,
       contrasena: user.contrasena,
-      sessionToken: `${token}`,
+      session_token: `${token}`,
     };
     return {
       data: userData,
@@ -84,7 +84,7 @@ export class AuthService {
     if (!result.rows || result.rows.length === 0) {
       const userData: UsuarioDto = {
         id: 0,
-        nombreCompleto: "",
+        nombre_completo: "",
         email: "",
         foto: "",
         fecha_creacion: "",
@@ -101,7 +101,7 @@ export class AuthService {
 
     const userData: UsuarioDto = {
       id: usuario.id,
-      nombreCompleto: usuario.nombre_completo,
+      nombre_completo: usuario.nombre_completo,
       email: usuario.email,
       foto: usuario.foto,
       fecha_creacion: usuario.fecha_creacion,

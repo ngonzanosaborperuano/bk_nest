@@ -20,7 +20,7 @@ export class UsuarioDto {
     example: "Juan Pérez",
     description: "Nombre completo del usuario",
   })
-  nombreCompleto!: string;
+  nombre_completo!: string;
 
   @IsEmail()
   @IsNotEmpty()
@@ -61,5 +61,5 @@ export class UsuarioDto {
     example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
     description: "Token de sesión JWT",
   })
-  sessionToken?: string;
+  session_token?: string;
 }
