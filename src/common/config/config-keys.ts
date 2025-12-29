@@ -25,6 +25,5 @@ export const CONFIG_KEYS = {
   JWT: {
     SECRET: "jwt.SECRET",
     EXPIRES: "jwt.EXPIRES",
-    ALGORITHM: "jwt.ALGORITHM",
   },
 };

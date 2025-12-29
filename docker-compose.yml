@@ -1,0 +1,36 @@
+# ============================================
+# NestJS Microservicio - Docker Compose Individual
+# ============================================
+# PREREQUISITO: La infraestructura debe estar corriendo
+# Levantar primero desde la raíz:
+#   docker compose --profile infrastructure up -d
+# ============================================
+
+services:
+  nest_app:
+    container_name: cocinando_nest
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file:
+      - .env
+    ports:
+      - "${PORT:-3002}:3002"
+    # Asume que postgres y redis están corriendo en la red backend_net
+    # No usa depends_on porque los servicios son externos
+    command: npm run start:dev
+    environment:
+      - API_APP=0.0.0.0
+      - NODE_ENV=development
+    networks:
+      - backend_net
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3002/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+networks:
+  backend_net:
+    external: true
